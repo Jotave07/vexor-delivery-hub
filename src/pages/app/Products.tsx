@@ -97,7 +97,8 @@ const Products = () => {
   };
 
   const toggle = async (p: Product, field: "is_active" | "is_available") => {
-    await supabase.from("products").update({ [field]: !p[field] }).eq("id", p.id);
+    const patch: any = { [field]: !p[field] };
+    await supabase.from("products").update(patch).eq("id", p.id);
     load();
   };
   const remove = async (p: Product) => {
