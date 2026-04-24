@@ -21,8 +21,8 @@ export const Navbar = () => {
           <a href="#planos" className="text-sm text-muted-foreground transition-smooth hover:text-foreground">Planos</a>
         </div>
         <div className="flex items-center gap-3">
-          <Button variant="ghost" size="sm" className="hidden sm:inline-flex">Entrar</Button>
-          <Button variant="hero" size="sm">Começar agora</Button>
+          <Button variant="ghost" size="sm" className="hidden sm:inline-flex" asChild><Link to="/entrar">Entrar</Link></Button>
+          <Button variant="hero" size="sm" asChild><Link to="/cadastrar">Começar agora</Link></Button>
         </div>
       </nav>
     </header>
