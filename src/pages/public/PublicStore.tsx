@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2, MapPin, Clock, ShoppingBag, Search } from "lucide-react";
 import { Card } from "@/components/ui/card";
@@ -53,6 +53,7 @@ const PublicStore = () => {
 
   const isOpen = settings?.is_open;
   const acceptOrders = isOpen || settings?.accept_orders_when_closed;
+  const publicStoreName = store.public_name || store.name;
 
   return (
     <div className="min-h-screen bg-background pb-28">
@@ -65,7 +66,7 @@ const PublicStore = () => {
             {store.logo_url && <img src={store.logo_url} alt="" className="w-full h-full object-cover" />}
           </div>
           <div className="flex-1 min-w-0">
-            <h1 className="text-xl font-bold truncate">{store.name}</h1>
+            <h1 className="text-xl font-bold truncate">{publicStoreName}</h1>
             {store.description && <p className="text-sm text-muted-foreground line-clamp-2">{store.description}</p>}
             <div className="flex items-center gap-3 mt-2 text-xs text-muted-foreground flex-wrap">
               <Badge variant={isOpen ? "default" : "secondary"}>{isOpen ? "Aberto agora" : "Fechado"}</Badge>
@@ -125,9 +126,6 @@ const PublicStore = () => {
           })}
         </div>
 
-        <div className="mt-10 text-center text-xs text-muted-foreground">
-          Powered by <Link to="/" className="text-primary hover:underline">Vexor Delivery</Link>
-        </div>
       </div>
 
       {count > 0 && (

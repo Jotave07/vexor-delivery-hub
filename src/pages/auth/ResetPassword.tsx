@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
+import { BrandMark } from "@/components/BrandMark";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 
@@ -15,14 +16,13 @@ const ResetPassword = () => {
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    // wait briefly for supabase to process recovery hash
-    const t = setTimeout(() => setReady(true), 300);
-    return () => clearTimeout(t);
+    const timer = setTimeout(() => setReady(true), 300);
+    return () => clearTimeout(timer);
   }, []);
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (password.length < 6) return toast.error("Mínimo 6 caracteres");
+    if (password.length < 6) return toast.error("Minimo 6 caracteres");
     setLoading(true);
     const { error } = await supabase.auth.updateUser({ password });
     setLoading(false);
@@ -33,16 +33,17 @@ const ResetPassword = () => {
 
   if (!ready) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="flex min-h-screen items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-background px-4">
-      <Card className="w-full max-w-md p-8">
-        <h1 className="text-2xl font-bold mb-6">Definir nova senha</h1>
+    <div className="auth-shell">
+      <BrandMark to="/" className="mb-8" />
+      <Card className="auth-card">
+        <h1 className="mb-6 text-2xl font-bold">Definir nova senha</h1>
         <form onSubmit={onSubmit} className="space-y-4">
           <div>
             <Label htmlFor="password">Nova senha</Label>
@@ -58,3 +59,4 @@ const ResetPassword = () => {
 };
 
 export default ResetPassword;
+

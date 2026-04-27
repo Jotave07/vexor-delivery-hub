@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
@@ -17,7 +17,7 @@ const OrderTracking = () => {
   const [history, setHistory] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const load = async () => {
+  const load = useCallback(async () => {
     if (!token) return;
     const [{ data: o }, { data: it }, { data: h }] = await Promise.all([
       supabase.rpc("get_public_order", { _token: token }),
@@ -28,14 +28,17 @@ const OrderTracking = () => {
     setItems(it ?? []);
     setHistory(h ?? []);
     setLoading(false);
-  };
-
-  useEffect(() => { load(); }, [token]);
-  useEffect(() => {
-    const id = setInterval(load, 15000);
-    return () => clearInterval(id);
-    // eslint-disable-next-line
   }, [token]);
+
+  useEffect(() => {
+    void load();
+  }, [load]);
+  useEffect(() => {
+    const id = setInterval(() => {
+      void load();
+    }, 15000);
+    return () => clearInterval(id);
+  }, [load]);
 
   if (loading) return <div className="min-h-screen flex items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
   if (!order) return <div className="min-h-screen flex items-center justify-center text-muted-foreground">Pedido não encontrado</div>;

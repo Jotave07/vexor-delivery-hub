@@ -5,8 +5,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
+import { BrandMark } from "@/components/BrandMark";
 import { toast } from "sonner";
-import { Loader2, Zap } from "lucide-react";
+import { Loader2 } from "lucide-react";
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState("");
@@ -26,18 +27,15 @@ const ForgotPassword = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-background px-4">
-      <Link to="/" className="mb-8 flex items-center gap-2">
-        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-primary shadow-glow">
-          <Zap className="h-5 w-5 text-primary-foreground" />
-        </div>
-        <span className="text-xl font-bold">Vexor<span className="text-primary"> Delivery</span></span>
-      </Link>
-      <Card className="w-full max-w-md p-8">
-        <h1 className="text-2xl font-bold mb-2">Recuperar senha</h1>
-        <p className="text-sm text-muted-foreground mb-6">Enviaremos um link para redefinir sua senha.</p>
+    <div className="auth-shell">
+      <BrandMark to="/" className="mb-8" />
+      <Card className="auth-card">
+        <h1 className="mb-2 text-2xl font-bold">Recuperar senha</h1>
+        <p className="mb-6 text-sm text-muted-foreground">Enviaremos um link para redefinir sua senha.</p>
         {sent ? (
-          <p className="text-sm text-success">Pronto! Confira sua caixa de entrada.</p>
+          <p className="rounded-md border border-success/25 bg-success/10 p-3 text-sm text-success">
+            Pronto! Confira sua caixa de entrada.
+          </p>
         ) : (
           <form onSubmit={onSubmit} className="space-y-4">
             <div>
@@ -58,3 +56,4 @@ const ForgotPassword = () => {
 };
 
 export default ForgotPassword;
+

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useOutletContext } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -30,7 +30,8 @@ const Products = () => {
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
 
-  const load = async () => {
+  const load = useCallback(async () => {
+    if (!store?.id) return;
     setLoading(true);
     const [prods, cats] = await Promise.all([
       supabase.from("products").select("*, categories(name)").eq("store_id", store.id).order("sort_order"),
@@ -39,8 +40,11 @@ const Products = () => {
     setItems(prods.data ?? []);
     setCategories((cats.data as Category[]) ?? []);
     setLoading(false);
-  };
-  useEffect(() => { if (store?.id) load(); /* eslint-disable-next-line */ }, [store?.id]);
+  }, [store?.id]);
+
+  useEffect(() => {
+    void load();
+  }, [load]);
 
   const openNew = () => {
     setEditing(null);

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useOutletContext } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -20,7 +20,8 @@ const Users = () => {
   const [members, setMembers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const load = async () => {
+  const load = useCallback(async () => {
+    if (!store?.id) return;
     setLoading(true);
     // members are profiles linked to this store
     const { data: profiles } = await supabase.from("profiles").select("*").eq("store_id", store.id);
@@ -33,9 +34,11 @@ const Users = () => {
     }));
     setMembers(merged);
     setLoading(false);
-  };
+  }, [store?.id]);
 
-  useEffect(() => { if (store?.id) load(); /* eslint-disable-next-line */ }, [store?.id]);
+  useEffect(() => {
+    void load();
+  }, [load]);
 
   const remove = async (member: any) => {
     if (member.user_id === store.owner_user_id) return toast.error("Não é possível remover o dono");

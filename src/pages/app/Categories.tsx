@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useOutletContext } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -21,13 +21,17 @@ const Categories = () => {
   const [form, setForm] = useState({ name: "", description: "", sort_order: 0 });
   const [saving, setSaving] = useState(false);
 
-  const load = async () => {
+  const load = useCallback(async () => {
+    if (!store?.id) return;
     setLoading(true);
     const { data } = await supabase.from("categories").select("*").eq("store_id", store.id).order("sort_order");
     setItems((data as Category[]) ?? []);
     setLoading(false);
-  };
-  useEffect(() => { if (store?.id) load(); /* eslint-disable-next-line */ }, [store?.id]);
+  }, [store?.id]);
+
+  useEffect(() => {
+    void load();
+  }, [load]);
 
   const openNew = () => { setEditing(null); setForm({ name: "", description: "", sort_order: items.length }); setOpen(true); };
   const openEdit = (c: Category) => { setEditing(c); setForm({ name: c.name, description: c.description ?? "", sort_order: c.sort_order }); setOpen(true); };

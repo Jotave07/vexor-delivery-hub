@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useOutletContext } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -22,12 +22,16 @@ const Coupons = () => {
   const [form, setForm] = useState<any>({ code: "", discount_type: "percentual", discount_value: "", min_order_value: "0", usage_limit: "", expires_at: "" });
   const [saving, setSaving] = useState(false);
 
-  const load = async () => {
+  const load = useCallback(async () => {
+    if (!store?.id) return;
     setLoading(true);
     const { data } = await supabase.from("coupons").select("*").eq("store_id", store.id).order("created_at", { ascending: false });
     setItems(data ?? []); setLoading(false);
-  };
-  useEffect(() => { if (store?.id) load(); /* eslint-disable-next-line */ }, [store?.id]);
+  }, [store?.id]);
+
+  useEffect(() => {
+    void load();
+  }, [load]);
 
   const openNew = () => { setEditing(null); setForm({ code: "", discount_type: "percentual", discount_value: "", min_order_value: "0", usage_limit: "", expires_at: "" }); setOpen(true); };
   const openEdit = (c: any) => { setEditing(c); setForm({ code: c.code, discount_type: c.discount_type, discount_value: String(c.discount_value), min_order_value: String(c.min_order_value), usage_limit: c.usage_limit ? String(c.usage_limit) : "", expires_at: c.expires_at?.slice(0, 10) ?? "" }); setOpen(true); };

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -15,7 +15,7 @@ export const OptionsDialog = ({ product, storeId, onClose }: { product: any; sto
   const [items, setItems] = useState<Record<string, any[]>>({});
   const [loading, setLoading] = useState(true);
 
-  const load = async () => {
+  const load = useCallback(async () => {
     setLoading(true);
     const { data: g } = await supabase.from("product_options").select("*").eq("product_id", product.id).order("sort_order");
     const groupsData = g ?? [];
@@ -25,10 +25,15 @@ export const OptionsDialog = ({ product, storeId, onClose }: { product: any; sto
       const map: Record<string, any[]> = {};
       groupsData.forEach((gr: any) => { map[gr.id] = (itemsData ?? []).filter((it: any) => it.option_id === gr.id); });
       setItems(map);
+    } else {
+      setItems({});
     }
     setLoading(false);
-  };
-  useEffect(() => { load(); /* eslint-disable-next-line */ }, [product.id]);
+  }, [product.id]);
+
+  useEffect(() => {
+    void load();
+  }, [load]);
 
   const addGroup = async () => {
     const name = prompt("Nome do grupo (ex.: Adicionais):");

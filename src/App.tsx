@@ -6,6 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { CartProvider } from "@/contexts/CartContext";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
+import { SubscriptionGuard } from "@/components/SubscriptionGuard";
 import Index from "./pages/Index.tsx";
 import NotFound from "./pages/NotFound.tsx";
 import Login from "./pages/auth/Login";
@@ -56,17 +57,19 @@ const App = () => (
               <Route path="/pedido/:token" element={<OrderTracking />} />
 
               <Route path="/app" element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
-                <Route index element={<Dashboard />} />
-                <Route path="pedidos" element={<Orders />} />
-                <Route path="cardapio" element={<Products />} />
-                <Route path="categorias" element={<Categories />} />
-                <Route path="clientes" element={<Customers />} />
-                <Route path="cupons" element={<Coupons />} />
-                <Route path="entregas" element={<Zones />} />
-                <Route path="relatorios" element={<Reports />} />
-                <Route path="configuracoes" element={<Settings />} />
                 <Route path="assinatura" element={<Subscription />} />
-                <Route path="usuarios" element={<Users />} />
+                <Route element={<SubscriptionGuard />}>
+                  <Route index element={<Dashboard />} />
+                  <Route path="pedidos" element={<Orders />} />
+                  <Route path="cardapio" element={<Products />} />
+                  <Route path="categorias" element={<Categories />} />
+                  <Route path="clientes" element={<Customers />} />
+                  <Route path="cupons" element={<Coupons />} />
+                  <Route path="entregas" element={<Zones />} />
+                  <Route path="relatorios" element={<Reports />} />
+                  <Route path="configuracoes" element={<Settings />} />
+                  <Route path="usuarios" element={<Users />} />
+                </Route>
               </Route>
 
               <Route path="/admin" element={<AdminLayout />}>

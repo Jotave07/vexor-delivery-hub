@@ -656,8 +656,11 @@ export type Database = {
           max_products: number | null
           name: string
           price_monthly: number
+          provider_price_id: string | null
+          provider_product_id: string | null
           slug: string
           sort_order: number
+          subscription_provider: string | null
           updated_at: string
         }
         Insert: {
@@ -673,8 +676,11 @@ export type Database = {
           max_products?: number | null
           name: string
           price_monthly?: number
+          provider_price_id?: string | null
+          provider_product_id?: string | null
           slug: string
           sort_order?: number
+          subscription_provider?: string | null
           updated_at?: string
         }
         Update: {
@@ -690,8 +696,11 @@ export type Database = {
           max_products?: number | null
           name?: string
           price_monthly?: number
+          provider_price_id?: string | null
+          provider_product_id?: string | null
           slug?: string
           sort_order?: number
+          subscription_provider?: string | null
           updated_at?: string
         }
         Relationships: []
@@ -925,6 +934,12 @@ export type Database = {
           avg_prep_time_minutes: number
           business_hours: Json
           created_at: string
+          delivery_base_fee: number
+          delivery_distance_rules: Json
+          delivery_fee_per_km: number
+          delivery_message: string | null
+          delivery_radius_km: number | null
+          excluded_neighborhoods: Json
           id: string
           is_open: boolean
           min_order_value: number
@@ -943,6 +958,12 @@ export type Database = {
           avg_prep_time_minutes?: number
           business_hours?: Json
           created_at?: string
+          delivery_base_fee?: number
+          delivery_distance_rules?: Json
+          delivery_fee_per_km?: number
+          delivery_message?: string | null
+          delivery_radius_km?: number | null
+          excluded_neighborhoods?: Json
           id?: string
           is_open?: boolean
           min_order_value?: number
@@ -961,6 +982,12 @@ export type Database = {
           avg_prep_time_minutes?: number
           business_hours?: Json
           created_at?: string
+          delivery_base_fee?: number
+          delivery_distance_rules?: Json
+          delivery_fee_per_km?: number
+          delivery_message?: string | null
+          delivery_radius_km?: number | null
+          excluded_neighborhoods?: Json
           id?: string
           is_open?: boolean
           min_order_value?: number
@@ -982,6 +1009,8 @@ export type Database = {
       stores: {
         Row: {
           address: string | null
+          address_complement: string | null
+          address_number: string | null
           city: string | null
           cover_url: string | null
           created_at: string
@@ -991,21 +1020,27 @@ export type Database = {
           id: string
           is_active: boolean
           is_suspended: boolean
+          latitude: number | null
           logo_url: string | null
           name: string
+          neighborhood: string | null
           owner_user_id: string
           phone: string | null
           plan_id: string | null
           primary_color: string | null
+          public_name: string | null
           secondary_color: string | null
           slug: string
           state: string | null
+          longitude: number | null
           updated_at: string
           whatsapp: string | null
           zip_code: string | null
         }
         Insert: {
           address?: string | null
+          address_complement?: string | null
+          address_number?: string | null
           city?: string | null
           cover_url?: string | null
           created_at?: string
@@ -1015,21 +1050,27 @@ export type Database = {
           id?: string
           is_active?: boolean
           is_suspended?: boolean
+          latitude?: number | null
           logo_url?: string | null
           name: string
+          neighborhood?: string | null
           owner_user_id: string
           phone?: string | null
           plan_id?: string | null
           primary_color?: string | null
+          public_name?: string | null
           secondary_color?: string | null
           slug: string
           state?: string | null
+          longitude?: number | null
           updated_at?: string
           whatsapp?: string | null
           zip_code?: string | null
         }
         Update: {
           address?: string | null
+          address_complement?: string | null
+          address_number?: string | null
           city?: string | null
           cover_url?: string | null
           created_at?: string
@@ -1039,15 +1080,19 @@ export type Database = {
           id?: string
           is_active?: boolean
           is_suspended?: boolean
+          latitude?: number | null
           logo_url?: string | null
           name?: string
+          neighborhood?: string | null
           owner_user_id?: string
           phone?: string | null
           plan_id?: string | null
           primary_color?: string | null
+          public_name?: string | null
           secondary_color?: string | null
           slug?: string
           state?: string | null
+          longitude?: number | null
           updated_at?: string
           whatsapp?: string | null
           zip_code?: string | null
@@ -1064,36 +1109,54 @@ export type Database = {
       }
       subscriptions: {
         Row: {
+          cancel_at_period_end: boolean
           created_at: string
           current_period_end: string | null
           current_period_start: string
           external_subscription_id: string | null
           id: string
+          last_payment_status: string | null
           plan_id: string
+          provider: string | null
+          provider_checkout_id: string | null
+          provider_customer_id: string | null
+          provider_subscription_id: string | null
           status: Database["public"]["Enums"]["subscription_status"]
           store_id: string
           trial_ends_at: string | null
           updated_at: string
         }
         Insert: {
+          cancel_at_period_end?: boolean
           created_at?: string
           current_period_end?: string | null
           current_period_start?: string
           external_subscription_id?: string | null
           id?: string
+          last_payment_status?: string | null
           plan_id: string
+          provider?: string | null
+          provider_checkout_id?: string | null
+          provider_customer_id?: string | null
+          provider_subscription_id?: string | null
           status?: Database["public"]["Enums"]["subscription_status"]
           store_id: string
           trial_ends_at?: string | null
           updated_at?: string
         }
         Update: {
+          cancel_at_period_end?: boolean
           created_at?: string
           current_period_end?: string | null
           current_period_start?: string
           external_subscription_id?: string | null
           id?: string
+          last_payment_status?: string | null
           plan_id?: string
+          provider?: string | null
+          provider_checkout_id?: string | null
+          provider_customer_id?: string | null
+          provider_subscription_id?: string | null
           status?: Database["public"]["Enums"]["subscription_status"]
           store_id?: string
           trial_ends_at?: string | null
@@ -1224,7 +1287,14 @@ export type Database = {
       order_type: "entrega" | "retirada"
       payment_method: "dinheiro" | "pix" | "cartao_entrega"
       payment_status: "pendente" | "pago" | "cancelado"
-      subscription_status: "trial" | "ativa" | "suspensa" | "cancelada"
+      subscription_status:
+        | "trial"
+        | "ativa"
+        | "suspensa"
+        | "cancelada"
+        | "pendente_pagamento"
+        | "inadimplente"
+        | "bloqueada"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1366,7 +1436,7 @@ export const Constants = {
       order_type: ["entrega", "retirada"],
       payment_method: ["dinheiro", "pix", "cartao_entrega"],
       payment_status: ["pendente", "pago", "cancelado"],
-      subscription_status: ["trial", "ativa", "suspensa", "cancelada"],
+      subscription_status: ["trial", "ativa", "suspensa", "cancelada", "pendente_pagamento", "inadimplente", "bloqueada"],
     },
   },
 } as const

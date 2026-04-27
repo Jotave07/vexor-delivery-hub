@@ -2,23 +2,25 @@ import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
-import { lovable } from "@/integrations/lovable";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
+import { BrandMark } from "@/components/BrandMark";
 import { toast } from "sonner";
-import { Loader2, Zap } from "lucide-react";
+import { Loader2 } from "lucide-react";
 
 const schema = z.object({
-  email: z.string().trim().email("E-mail inválido").max(255),
-  password: z.string().min(6, "Mínimo 6 caracteres").max(100),
+  email: z.string().trim().email("E-mail invalido").max(255),
+  password: z.string().min(6, "Minimo 6 caracteres").max(100),
 });
 
 const Login = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const from = (location.state as any)?.from || "/app";
+  const redirect = new URLSearchParams(location.search).get("redirect");
+  const from = (location.state as { from?: string } | null)?.from || redirect || "/app";
+  const safeFrom = from.startsWith("/") ? from : "/app";
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -38,33 +40,28 @@ const Login = () => {
       return;
     }
     toast.success("Bem-vindo!");
-    navigate(from, { replace: true });
+    navigate(safeFrom, { replace: true });
   };
 
   const onGoogle = async () => {
     setLoading(true);
-    const result = await lovable.auth.signInWithOAuth("google", { redirect_uri: window.location.origin + "/app" });
-    if (result.error) {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: { redirectTo: window.location.origin + safeFrom },
+    });
+    if (error) {
       setLoading(false);
-      toast.error("Não foi possível entrar com Google");
-      return;
+      toast.error("Nao foi possivel entrar com Google");
     }
-    if (result.redirected) return;
-    navigate("/app", { replace: true });
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-background px-4">
-      <Link to="/" className="mb-8 flex items-center gap-2">
-        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-primary shadow-glow">
-          <Zap className="h-5 w-5 text-primary-foreground" />
-        </div>
-        <span className="text-xl font-bold">Vexor<span className="text-primary"> Delivery</span></span>
-      </Link>
-      <Card className="w-full max-w-md p-8">
-        <h1 className="text-2xl font-bold mb-2">Entrar na sua conta</h1>
-        <p className="text-sm text-muted-foreground mb-6">Acesse o painel da sua loja</p>
-        <Button type="button" variant="outline" className="w-full mb-4" onClick={onGoogle} disabled={loading}>
+    <div className="auth-shell">
+      <BrandMark to="/" className="mb-8" />
+      <Card className="auth-card">
+        <h1 className="mb-2 text-2xl font-bold">Entrar na sua conta</h1>
+        <p className="mb-6 text-sm text-muted-foreground">Acesse o painel da sua loja</p>
+        <Button type="button" variant="outline" className="mb-4 w-full" onClick={onGoogle} disabled={loading}>
           Continuar com Google
         </Button>
         <div className="relative my-4">
@@ -88,7 +85,7 @@ const Login = () => {
           </Button>
         </form>
         <p className="mt-6 text-center text-sm text-muted-foreground">
-          Não tem conta? <Link to="/cadastrar" className="text-primary hover:underline">Cadastre-se</Link>
+          Nao tem conta? <Link to="/cadastrar" className="text-primary hover:underline">Cadastre-se</Link>
         </p>
       </Card>
     </div>

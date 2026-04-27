@@ -39,7 +39,11 @@ const Orders = () => {
       .on("postgres_changes", { event: "*", schema: "public", table: "orders", filter: `store_id=eq.${store.id}` }, (payload) => {
         if (payload.eventType === "INSERT") {
           toast.success(`🔔 Novo pedido #${(payload.new as any).order_number}`, { duration: 6000 });
-          try { new Audio("data:audio/wav;base64,UklGRl9vT19XQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQ==").play().catch(() => {}); } catch {}
+          try {
+            new Audio("data:audio/wav;base64,UklGRl9vT19XQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQ==").play().catch(() => undefined);
+          } catch {
+            // Audio feedback is optional and can be blocked by the browser.
+          }
         }
         load();
       }).subscribe();
@@ -61,7 +65,6 @@ const Orders = () => {
     if (status === "entregue") {
       const order = orders.find((x) => x.id === orderId);
       if (order?.customer_id) {
-        await supabase.rpc as any;
         const { data: customer } = await supabase.from("customers").select("total_orders, total_spent").eq("id", order.customer_id).maybeSingle();
         if (customer) {
           await supabase.from("customers").update({

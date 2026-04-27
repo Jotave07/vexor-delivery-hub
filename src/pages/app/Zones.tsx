@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useOutletContext } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -20,13 +20,17 @@ const Zones = () => {
   const [form, setForm] = useState({ neighborhood: "", city: "", fee: "", min_order: "", estimated_minutes: "45" });
   const [saving, setSaving] = useState(false);
 
-  const load = async () => {
+  const load = useCallback(async () => {
+    if (!store?.id) return;
     setLoading(true);
     const { data } = await supabase.from("delivery_zones").select("*").eq("store_id", store.id).order("neighborhood");
     setItems(data ?? []);
     setLoading(false);
-  };
-  useEffect(() => { if (store?.id) load(); /* eslint-disable-next-line */ }, [store?.id]);
+  }, [store?.id]);
+
+  useEffect(() => {
+    void load();
+  }, [load]);
 
   const openNew = () => { setEditing(null); setForm({ neighborhood: "", city: store.city ?? "", fee: "", min_order: "0", estimated_minutes: "45" }); setOpen(true); };
   const openEdit = (z: any) => { setEditing(z); setForm({ neighborhood: z.neighborhood, city: z.city ?? "", fee: String(z.fee), min_order: String(z.min_order), estimated_minutes: String(z.estimated_minutes) }); setOpen(true); };
