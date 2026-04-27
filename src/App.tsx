@@ -20,11 +20,18 @@ import Products from "./pages/app/Products";
 import Coupons from "./pages/app/Coupons";
 import Zones from "./pages/app/Zones";
 import Settings from "./pages/app/Settings";
-import { StubPage } from "./components/app/StubPage";
+import Orders from "./pages/app/Orders";
+import Customers from "./pages/app/Customers";
+import Reports from "./pages/app/Reports";
+import Subscription from "./pages/app/Subscription";
+import Users from "./pages/app/Users";
 import PublicStore from "./pages/public/PublicStore";
 import PublicCheckout from "./pages/public/PublicCheckout";
 import OrderTracking from "./pages/public/OrderTracking";
-import Orders from "./pages/app/Orders";
+import AdminLayout from "./pages/admin/AdminLayout";
+import AdminDashboard from "./pages/admin/AdminDashboard";
+import AdminStores from "./pages/admin/AdminStores";
+import AdminPlans from "./pages/admin/AdminPlans";
 
 const queryClient = new QueryClient();
 
@@ -53,13 +60,19 @@ const App = () => (
                 <Route path="pedidos" element={<Orders />} />
                 <Route path="cardapio" element={<Products />} />
                 <Route path="categorias" element={<Categories />} />
-                <Route path="clientes" element={<StubPage title="Clientes" description="Sua base de clientes." />} />
+                <Route path="clientes" element={<Customers />} />
                 <Route path="cupons" element={<Coupons />} />
                 <Route path="entregas" element={<Zones />} />
-                <Route path="relatorios" element={<StubPage title="Relatórios" description="Análises do seu delivery." />} />
+                <Route path="relatorios" element={<Reports />} />
                 <Route path="configuracoes" element={<Settings />} />
-                <Route path="assinatura" element={<StubPage title="Assinatura" description="Seu plano Vexor." />} />
-                <Route path="usuarios" element={<StubPage title="Usuários" description="Equipe da loja." />} />
+                <Route path="assinatura" element={<Subscription />} />
+                <Route path="usuarios" element={<Users />} />
+              </Route>
+
+              <Route path="/admin" element={<AdminLayout />}>
+                <Route index element={<AdminDashboard />} />
+                <Route path="lojas" element={<AdminStores />} />
+                <Route path="planos" element={<AdminPlans />} />
               </Route>
 
               <Route path="*" element={<NotFound />} />
