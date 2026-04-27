@@ -22,6 +22,9 @@ import Zones from "./pages/app/Zones";
 import Settings from "./pages/app/Settings";
 import { StubPage } from "./components/app/StubPage";
 import PublicStore from "./pages/public/PublicStore";
+import PublicCheckout from "./pages/public/PublicCheckout";
+import OrderTracking from "./pages/public/OrderTracking";
+import Orders from "./pages/app/Orders";
 
 const queryClient = new QueryClient();
 
@@ -42,10 +45,12 @@ const App = () => (
               <Route path="/onboarding" element={<ProtectedRoute><Onboarding /></ProtectedRoute>} />
 
               <Route path="/loja/:slug" element={<PublicStore />} />
+              <Route path="/loja/:slug/checkout" element={<PublicCheckout />} />
+              <Route path="/pedido/:token" element={<OrderTracking />} />
 
               <Route path="/app" element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
                 <Route index element={<Dashboard />} />
-                <Route path="pedidos" element={<StubPage title="Pedidos" description="Gestão de pedidos em tempo real." />} />
+                <Route path="pedidos" element={<Orders />} />
                 <Route path="cardapio" element={<Products />} />
                 <Route path="categorias" element={<Categories />} />
                 <Route path="clientes" element={<StubPage title="Clientes" description="Sua base de clientes." />} />
