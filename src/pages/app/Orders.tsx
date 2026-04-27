@@ -54,10 +54,10 @@ const Orders = () => {
     if (!o.is_seen) await supabase.from("orders").update({ is_seen: true }).eq("id", o.id);
   };
 
-  const updateStatus = async (orderId: string, status: string, note?: string) => {
+  const updateStatus = async (orderId: string, status: any, note?: string) => {
     const { error } = await supabase.from("orders").update({ status }).eq("id", orderId);
     if (error) return toast.error(error.message);
-    await supabase.from("order_status_history").insert({ order_id: orderId, store_id: store.id, status, notes: note ?? null });
+    await supabase.from("order_status_history").insert({ order_id: orderId, store_id: store.id, status, notes: note ?? null } as any);
     if (status === "entregue") {
       const order = orders.find((x) => x.id === orderId);
       if (order?.customer_id) {
