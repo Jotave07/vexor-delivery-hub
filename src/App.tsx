@@ -29,6 +29,8 @@ import Users from "./pages/app/Users";
 import PublicStore from "./pages/public/PublicStore";
 import PublicCheckout from "./pages/public/PublicCheckout";
 import OrderTracking from "./pages/public/OrderTracking";
+import PaymentSuccess from "./pages/public/PaymentSuccess";
+import PaymentCancelled from "./pages/public/PaymentCancelled";
 import AdminLayout from "./pages/admin/AdminLayout";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminStores from "./pages/admin/AdminStores";
@@ -55,6 +57,8 @@ const App = () => (
               <Route path="/loja/:slug" element={<PublicStore />} />
               <Route path="/loja/:slug/checkout" element={<PublicCheckout />} />
               <Route path="/pedido/:token" element={<OrderTracking />} />
+              <Route path="/pedido/:token/sucesso" element={<PaymentSuccess />} />
+              <Route path="/pedido/:token/cancelado" element={<PaymentCancelled />} />
 
               <Route path="/app" element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
                 <Route path="assinatura" element={<Subscription />} />
