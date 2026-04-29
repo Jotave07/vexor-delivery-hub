@@ -184,6 +184,21 @@ const PublicCheckout = () => {
       // 8. Bump coupon usage
       if (coupon) await supabase.from("coupons").update({ usage_count: (coupon.usage_count ?? 0) + 1 }).eq("id", coupon.id);
 
+      // 9. Se cartão online, criar Stripe Checkout e redirecionar (sem limpar carrinho ainda)
+      if (paymentMethod === "cartao_online") {
+        const successUrl = `${window.location.origin}/pedido/${order.public_token}/sucesso?session_id={CHECKOUT_SESSION_ID}`;
+        const cancelUrl = `${window.location.origin}/pedido/${order.public_token}/cancelado`;
+        const { data: ck, error: ckErr } = await supabase.functions.invoke("create-order-checkout", {
+          body: { orderId: order.id, successUrl, cancelUrl },
+        });
+        if (ckErr || !ck?.checkoutUrl) {
+          throw new Error(ckErr?.message ?? ck?.error ?? "Falha ao iniciar pagamento online.");
+        }
+        clear();
+        window.location.href = ck.checkoutUrl as string;
+        return;
+      }
+
       clear();
       toast.success("Pedido enviado!");
       navigate(`/pedido/${order.public_token}`, { replace: true });
