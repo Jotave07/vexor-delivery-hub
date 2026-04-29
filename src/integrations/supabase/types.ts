@@ -492,6 +492,7 @@ export type Database = {
           order_number: number
           order_type: Database["public"]["Enums"]["order_type"]
           payment_method: Database["public"]["Enums"]["payment_method"]
+          payment_status: Database["public"]["Enums"]["payment_status_extended"]
           public_token: string
           status: Database["public"]["Enums"]["order_status"]
           store_id: string
@@ -521,6 +522,7 @@ export type Database = {
           order_number?: number
           order_type?: Database["public"]["Enums"]["order_type"]
           payment_method: Database["public"]["Enums"]["payment_method"]
+          payment_status?: Database["public"]["Enums"]["payment_status_extended"]
           public_token?: string
           status?: Database["public"]["Enums"]["order_status"]
           store_id: string
@@ -550,6 +552,7 @@ export type Database = {
           order_number?: number
           order_type?: Database["public"]["Enums"]["order_type"]
           payment_method?: Database["public"]["Enums"]["payment_method"]
+          payment_status?: Database["public"]["Enums"]["payment_status_extended"]
           public_token?: string
           status?: Database["public"]["Enums"]["order_status"]
           store_id?: string
@@ -592,11 +595,17 @@ export type Database = {
         Row: {
           amount: number
           created_at: string
+          currency: string
           external_id: string | null
+          failure_reason: string | null
           id: string
+          last_event_at: string | null
           method: Database["public"]["Enums"]["payment_method"]
           order_id: string
           paid_at: string | null
+          provider: string
+          provider_payment_intent_id: string | null
+          provider_session_id: string | null
           status: Database["public"]["Enums"]["payment_status"]
           store_id: string
           updated_at: string
@@ -604,11 +613,17 @@ export type Database = {
         Insert: {
           amount: number
           created_at?: string
+          currency?: string
           external_id?: string | null
+          failure_reason?: string | null
           id?: string
+          last_event_at?: string | null
           method: Database["public"]["Enums"]["payment_method"]
           order_id: string
           paid_at?: string | null
+          provider?: string
+          provider_payment_intent_id?: string | null
+          provider_session_id?: string | null
           status?: Database["public"]["Enums"]["payment_status"]
           store_id: string
           updated_at?: string
@@ -616,11 +631,17 @@ export type Database = {
         Update: {
           amount?: number
           created_at?: string
+          currency?: string
           external_id?: string | null
+          failure_reason?: string | null
           id?: string
+          last_event_at?: string | null
           method?: Database["public"]["Enums"]["payment_method"]
           order_id?: string
           paid_at?: string | null
+          provider?: string
+          provider_payment_intent_id?: string | null
+          provider_session_id?: string | null
           status?: Database["public"]["Enums"]["payment_status"]
           store_id?: string
           updated_at?: string
@@ -1104,6 +1125,27 @@ export type Database = {
           },
         ]
       }
+      stripe_events: {
+        Row: {
+          created_at: string
+          id: string
+          payload: Json | null
+          type: string
+        }
+        Insert: {
+          created_at?: string
+          id: string
+          payload?: Json | null
+          type: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          payload?: Json | null
+          type?: string
+        }
+        Relationships: []
+      }
       subscriptions: {
         Row: {
           created_at: string
@@ -1221,6 +1263,7 @@ export type Database = {
           order_number: number
           order_type: Database["public"]["Enums"]["order_type"]
           payment_method: Database["public"]["Enums"]["payment_method"]
+          payment_status: Database["public"]["Enums"]["payment_status_extended"]
           status: Database["public"]["Enums"]["order_status"]
           store_id: string
           store_logo_url: string
@@ -1259,6 +1302,10 @@ export type Database = {
         Returns: boolean
       }
       is_vexor_admin: { Args: { _user_id: string }; Returns: boolean }
+      mark_stripe_event_processed: {
+        Args: { _event_id: string; _event_type: string; _payload: Json }
+        Returns: boolean
+      }
       user_belongs_to_store: {
         Args: { _store_id: string; _user_id: string }
         Returns: boolean
@@ -1284,6 +1331,14 @@ export type Database = {
       order_type: "entrega" | "retirada"
       payment_method: "dinheiro" | "pix" | "cartao_entrega"
       payment_status: "pendente" | "pago" | "cancelado"
+      payment_status_extended:
+        | "pendente"
+        | "processando"
+        | "pago"
+        | "falhou"
+        | "cancelado"
+        | "expirado"
+        | "reembolsado"
       subscription_status:
         | "trial"
         | "ativa"
@@ -1440,6 +1495,15 @@ export const Constants = {
       order_type: ["entrega", "retirada"],
       payment_method: ["dinheiro", "pix", "cartao_entrega"],
       payment_status: ["pendente", "pago", "cancelado"],
+      payment_status_extended: [
+        "pendente",
+        "processando",
+        "pago",
+        "falhou",
+        "cancelado",
+        "expirado",
+        "reembolsado",
+      ],
       subscription_status: [
         "trial",
         "ativa",
