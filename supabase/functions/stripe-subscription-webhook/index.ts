@@ -45,6 +45,8 @@ Deno.serve(async (request) => {
     if (isNew === false) {
       return jsonResponse({ received: true, duplicate: true });
     }
+
+    switch (event.type) {
       case "checkout.session.completed": {
         const session = event.data.object as Stripe.Checkout.Session;
         const subscriptionId = typeof session.subscription === "string" ? session.subscription : session.subscription?.id;
