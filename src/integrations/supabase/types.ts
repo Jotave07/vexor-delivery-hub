@@ -1211,7 +1211,13 @@ export type Database = {
       }
     }
     Enums: {
-      app_role: "admin_vexor" | "store_owner" | "store_staff" | "delivery_staff"
+      app_role:
+        | "admin_vexor"
+        | "store_owner"
+        | "store_staff"
+        | "delivery_staff"
+        | "store_manager"
+        | "store_attendant"
       coupon_type: "percentual" | "fixo"
       order_status:
         | "novo"
@@ -1224,7 +1230,14 @@ export type Database = {
       order_type: "entrega" | "retirada"
       payment_method: "dinheiro" | "pix" | "cartao_entrega"
       payment_status: "pendente" | "pago" | "cancelado"
-      subscription_status: "trial" | "ativa" | "suspensa" | "cancelada"
+      subscription_status:
+        | "trial"
+        | "ativa"
+        | "suspensa"
+        | "cancelada"
+        | "pendente_pagamento"
+        | "inadimplente"
+        | "bloqueada"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1352,7 +1365,14 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin_vexor", "store_owner", "store_staff", "delivery_staff"],
+      app_role: [
+        "admin_vexor",
+        "store_owner",
+        "store_staff",
+        "delivery_staff",
+        "store_manager",
+        "store_attendant",
+      ],
       coupon_type: ["percentual", "fixo"],
       order_status: [
         "novo",
@@ -1366,7 +1386,15 @@ export const Constants = {
       order_type: ["entrega", "retirada"],
       payment_method: ["dinheiro", "pix", "cartao_entrega"],
       payment_status: ["pendente", "pago", "cancelado"],
-      subscription_status: ["trial", "ativa", "suspensa", "cancelada"],
+      subscription_status: [
+        "trial",
+        "ativa",
+        "suspensa",
+        "cancelada",
+        "pendente_pagamento",
+        "inadimplente",
+        "bloqueada",
+      ],
     },
   },
 } as const
