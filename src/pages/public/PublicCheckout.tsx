@@ -293,6 +293,11 @@ const PublicCheckout = () => {
                 <RadioGroupItem value="cartao_entrega" /> Cartão na entrega
               </label>
             )}
+            {settings?.accept_card_online && (
+              <label className={`flex items-center gap-2 border rounded-md p-3 cursor-pointer ${paymentMethod === "cartao_online" ? "border-primary bg-primary/5" : "border-border"}`}>
+                <RadioGroupItem value="cartao_online" /> Cartão online (pagar agora)
+              </label>
+            )}
           </RadioGroup>
           {paymentMethod === "dinheiro" && (
             <div><Label>Troco para</Label><Input type="number" step="0.01" value={changeFor} onChange={(e) => setChangeFor(e.target.value)} placeholder="Ex: 50,00" /></div>
