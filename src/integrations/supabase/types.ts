@@ -944,6 +944,7 @@ export type Database = {
       store_settings: {
         Row: {
           accept_card_on_delivery: boolean
+          accept_card_online: boolean
           accept_cash: boolean
           accept_orders_when_closed: boolean
           accept_pix: boolean
@@ -968,6 +969,7 @@ export type Database = {
         }
         Insert: {
           accept_card_on_delivery?: boolean
+          accept_card_online?: boolean
           accept_cash?: boolean
           accept_orders_when_closed?: boolean
           accept_pix?: boolean
@@ -992,6 +994,7 @@ export type Database = {
         }
         Update: {
           accept_card_on_delivery?: boolean
+          accept_card_online?: boolean
           accept_cash?: boolean
           accept_orders_when_closed?: boolean
           accept_pix?: boolean
@@ -1329,7 +1332,7 @@ export type Database = {
         | "entregue"
         | "cancelado"
       order_type: "entrega" | "retirada"
-      payment_method: "dinheiro" | "pix" | "cartao_entrega"
+      payment_method: "dinheiro" | "pix" | "cartao_entrega" | "cartao_online"
       payment_status: "pendente" | "pago" | "cancelado"
       payment_status_extended:
         | "pendente"
@@ -1493,7 +1496,7 @@ export const Constants = {
         "cancelado",
       ],
       order_type: ["entrega", "retirada"],
-      payment_method: ["dinheiro", "pix", "cartao_entrega"],
+      payment_method: ["dinheiro", "pix", "cartao_entrega", "cartao_online"],
       payment_status: ["pendente", "pago", "cancelado"],
       payment_status_extended: [
         "pendente",
