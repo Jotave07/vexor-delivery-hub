@@ -35,7 +35,7 @@ const PublicCheckout = () => {
   const [number, setNumber] = useState("");
   const [complement, setComplement] = useState("");
   const [reference, setReference] = useState("");
-  const [paymentMethod, setPaymentMethod] = useState<"pix" | "dinheiro" | "cartao_entrega">("pix");
+  const [paymentMethod, setPaymentMethod] = useState<"pix" | "dinheiro" | "cartao_entrega" | "cartao_online">("pix");
   const [changeFor, setChangeFor] = useState("");
   const [notes, setNotes] = useState("");
   const [couponCode, setCouponCode] = useState("");
@@ -95,6 +95,7 @@ const PublicCheckout = () => {
     if (paymentMethod === "pix" && !settings.accept_pix) return toast.error("Pix não aceito");
     if (paymentMethod === "dinheiro" && !settings.accept_cash) return toast.error("Dinheiro não aceito");
     if (paymentMethod === "cartao_entrega" && !settings.accept_card_on_delivery) return toast.error("Cartão na entrega não aceito");
+    if (paymentMethod === "cartao_online" && !settings.accept_card_online) return toast.error("Cartão online não aceito");
 
     setSubmitting(true);
     try {
