@@ -657,10 +657,9 @@ export type Database = {
           name: string
           price_monthly: number
           provider_price_id: string | null
-          provider_product_id: string | null
           slug: string
           sort_order: number
-          subscription_provider: string | null
+          subscription_provider: string
           updated_at: string
         }
         Insert: {
@@ -677,10 +676,9 @@ export type Database = {
           name: string
           price_monthly?: number
           provider_price_id?: string | null
-          provider_product_id?: string | null
           slug: string
           sort_order?: number
-          subscription_provider?: string | null
+          subscription_provider?: string
           updated_at?: string
         }
         Update: {
@@ -697,10 +695,9 @@ export type Database = {
           name?: string
           price_monthly?: number
           provider_price_id?: string | null
-          provider_product_id?: string | null
           slug?: string
           sort_order?: number
-          subscription_provider?: string | null
+          subscription_provider?: string
           updated_at?: string
         }
         Relationships: []
@@ -938,7 +935,7 @@ export type Database = {
           delivery_distance_rules: Json
           delivery_fee_per_km: number
           delivery_message: string | null
-          delivery_radius_km: number | null
+          delivery_radius_km: number
           excluded_neighborhoods: Json
           id: string
           is_open: boolean
@@ -962,7 +959,7 @@ export type Database = {
           delivery_distance_rules?: Json
           delivery_fee_per_km?: number
           delivery_message?: string | null
-          delivery_radius_km?: number | null
+          delivery_radius_km?: number
           excluded_neighborhoods?: Json
           id?: string
           is_open?: boolean
@@ -986,7 +983,7 @@ export type Database = {
           delivery_distance_rules?: Json
           delivery_fee_per_km?: number
           delivery_message?: string | null
-          delivery_radius_km?: number | null
+          delivery_radius_km?: number
           excluded_neighborhoods?: Json
           id?: string
           is_open?: boolean
@@ -1022,6 +1019,7 @@ export type Database = {
           is_suspended: boolean
           latitude: number | null
           logo_url: string | null
+          longitude: number | null
           name: string
           neighborhood: string | null
           owner_user_id: string
@@ -1032,7 +1030,6 @@ export type Database = {
           secondary_color: string | null
           slug: string
           state: string | null
-          longitude: number | null
           updated_at: string
           whatsapp: string | null
           zip_code: string | null
@@ -1052,6 +1049,7 @@ export type Database = {
           is_suspended?: boolean
           latitude?: number | null
           logo_url?: string | null
+          longitude?: number | null
           name: string
           neighborhood?: string | null
           owner_user_id: string
@@ -1062,7 +1060,6 @@ export type Database = {
           secondary_color?: string | null
           slug: string
           state?: string | null
-          longitude?: number | null
           updated_at?: string
           whatsapp?: string | null
           zip_code?: string | null
@@ -1082,6 +1079,7 @@ export type Database = {
           is_suspended?: boolean
           latitude?: number | null
           logo_url?: string | null
+          longitude?: number | null
           name?: string
           neighborhood?: string | null
           owner_user_id?: string
@@ -1092,7 +1090,6 @@ export type Database = {
           secondary_color?: string | null
           slug?: string
           state?: string | null
-          longitude?: number | null
           updated_at?: string
           whatsapp?: string | null
           zip_code?: string | null
@@ -1109,7 +1106,6 @@ export type Database = {
       }
       subscriptions: {
         Row: {
-          cancel_at_period_end: boolean
           created_at: string
           current_period_end: string | null
           current_period_start: string
@@ -1117,17 +1113,15 @@ export type Database = {
           id: string
           last_payment_status: string | null
           plan_id: string
-          provider: string | null
+          provider: string
           provider_checkout_id: string | null
           provider_customer_id: string | null
-          provider_subscription_id: string | null
           status: Database["public"]["Enums"]["subscription_status"]
           store_id: string
           trial_ends_at: string | null
           updated_at: string
         }
         Insert: {
-          cancel_at_period_end?: boolean
           created_at?: string
           current_period_end?: string | null
           current_period_start?: string
@@ -1135,17 +1129,15 @@ export type Database = {
           id?: string
           last_payment_status?: string | null
           plan_id: string
-          provider?: string | null
+          provider?: string
           provider_checkout_id?: string | null
           provider_customer_id?: string | null
-          provider_subscription_id?: string | null
           status?: Database["public"]["Enums"]["subscription_status"]
           store_id: string
           trial_ends_at?: string | null
           updated_at?: string
         }
         Update: {
-          cancel_at_period_end?: boolean
           created_at?: string
           current_period_end?: string | null
           current_period_start?: string
@@ -1153,10 +1145,9 @@ export type Database = {
           id?: string
           last_payment_status?: string | null
           plan_id?: string
-          provider?: string | null
+          provider?: string
           provider_checkout_id?: string | null
           provider_customer_id?: string | null
-          provider_subscription_id?: string | null
           status?: Database["public"]["Enums"]["subscription_status"]
           store_id?: string
           trial_ends_at?: string | null
@@ -1274,7 +1265,13 @@ export type Database = {
       }
     }
     Enums: {
-      app_role: "admin_vexor" | "store_owner" | "store_staff" | "delivery_staff"
+      app_role:
+        | "admin_vexor"
+        | "store_owner"
+        | "store_staff"
+        | "delivery_staff"
+        | "store_manager"
+        | "store_attendant"
       coupon_type: "percentual" | "fixo"
       order_status:
         | "novo"
@@ -1422,7 +1419,14 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin_vexor", "store_owner", "store_staff", "delivery_staff"],
+      app_role: [
+        "admin_vexor",
+        "store_owner",
+        "store_staff",
+        "delivery_staff",
+        "store_manager",
+        "store_attendant",
+      ],
       coupon_type: ["percentual", "fixo"],
       order_status: [
         "novo",
@@ -1436,7 +1440,15 @@ export const Constants = {
       order_type: ["entrega", "retirada"],
       payment_method: ["dinheiro", "pix", "cartao_entrega"],
       payment_status: ["pendente", "pago", "cancelado"],
-      subscription_status: ["trial", "ativa", "suspensa", "cancelada", "pendente_pagamento", "inadimplente", "bloqueada"],
+      subscription_status: [
+        "trial",
+        "ativa",
+        "suspensa",
+        "cancelada",
+        "pendente_pagamento",
+        "inadimplente",
+        "bloqueada",
+      ],
     },
   },
 } as const
