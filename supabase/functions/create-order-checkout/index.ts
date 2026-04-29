@@ -13,9 +13,12 @@ type Body = {
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL") ?? "";
 const SERVICE_ROLE = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
 const STRIPE_KEY = Deno.env.get("STRIPE_SECRET_KEY") ?? "";
+const APP_URL = Deno.env.get("APP_URL") ?? "";
+const STRIPE_SUCCESS_URL = Deno.env.get("STRIPE_SUCCESS_URL") ?? "";
+const STRIPE_CANCEL_URL = Deno.env.get("STRIPE_CANCEL_URL") ?? "";
 
 const stripe = STRIPE_KEY
-  ? new Stripe(STRIPE_KEY, { apiVersion: "2024-06-20", httpClient: Stripe.createFetchHttpClient() })
+  ? new Stripe(STRIPE_KEY, { apiVersion: "2026-02-25.clover", httpClient: Stripe.createFetchHttpClient() })
   : null;
 
 const json = (body: unknown, status = 200) =>
@@ -24,42 +27,50 @@ const json = (body: unknown, status = 200) =>
     headers: { ...corsHeaders, "Content-Type": "application/json" },
   });
 
+const resolveAllowedUrl = (candidate: string | undefined, fallback: string) => {
+  if (!candidate) return fallback;
+  if (!APP_URL) return candidate;
+
+  try {
+    const appOrigin = new URL(APP_URL).origin;
+    const parsed = new URL(candidate);
+    return parsed.origin === appOrigin ? parsed.toString() : fallback;
+  } catch {
+    return fallback;
+  }
+};
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
 
   try {
-    if (!SUPABASE_URL || !SERVICE_ROLE) return json({ error: "Backend não configurado." }, 500);
-    if (!stripe) return json({ error: "STRIPE_SECRET_KEY não configurada. Adicione a chave nos secrets do projeto." }, 500);
+    if (!SUPABASE_URL || !SERVICE_ROLE) return json({ error: "Backend nao configurado." }, 500);
+    if (!stripe) return json({ error: "STRIPE_SECRET_KEY nao configurada." }, 500);
 
     const payload = (await req.json()) as Body;
     if (!payload?.orderId || !payload?.successUrl || !payload?.cancelUrl) {
-      return json({ error: "orderId, successUrl e cancelUrl são obrigatórios." }, 400);
+      return json({ error: "orderId, successUrl e cancelUrl sao obrigatorios." }, 400);
     }
 
     const supabase = createClient(SUPABASE_URL, SERVICE_ROLE);
 
-    // 1. Buscar pedido + itens (autoritativo no servidor)
-    const { data: order, error: oErr } = await supabase
+    const { data: order, error: orderError } = await supabase
       .from("orders")
-      .select("id, store_id, customer_name, customer_email, customer_phone, total, payment_method, payment_status, status, public_token, order_number")
+      .select("id, store_id, customer_email, total, payment_method, payment_status, status, public_token, order_number")
       .eq("id", payload.orderId)
       .maybeSingle();
 
-    if (oErr || !order) return json({ error: "Pedido não encontrado." }, 404);
+    if (orderError || !order) return json({ error: "Pedido nao encontrado." }, 404);
+    if (order.payment_method !== "cartao_online") return json({ error: "Este pedido nao usa cartao online." }, 409);
+    if (order.payment_status === "pago") return json({ error: "Pedido ja esta pago." }, 409);
+    if (order.status === "cancelado") return json({ error: "Pedido cancelado." }, 409);
 
-    if (order.payment_status === "pago") {
-      return json({ error: "Pedido já está pago." }, 409);
-    }
-    if (order.status === "cancelado") {
-      return json({ error: "Pedido cancelado." }, 409);
-    }
-
-    const { data: items, error: iErr } = await supabase
+    const { data: items, error: itemsError } = await supabase
       .from("order_items")
       .select("product_name, quantity, subtotal")
       .eq("order_id", order.id);
 
-    if (iErr || !items || items.length === 0) {
+    if (itemsError || !items || items.length === 0) {
       return json({ error: "Pedido sem itens." }, 400);
     }
 
@@ -69,29 +80,31 @@ Deno.serve(async (req) => {
       .eq("id", order.store_id)
       .maybeSingle();
 
-    // 2. Total de referência (vindo do banco). Cobramos como uma linha única
-    //    "Pedido #N - Loja" para refletir entrega/desconto já aplicados no order.total.
     const totalCents = Math.round(Number(order.total) * 100);
     if (!Number.isFinite(totalCents) || totalCents < 50) {
-      return json({ error: "Valor do pedido inválido para cobrança online." }, 400);
+      return json({ error: "Valor do pedido invalido para cobranca online." }, 400);
     }
 
-    // 3. Reaproveitar pagamento pendente se houver
     const { data: existingPayment } = await supabase
       .from("payments")
-      .select("id, provider_session_id, status")
+      .select("id")
       .eq("order_id", order.id)
       .eq("provider", "stripe")
       .order("created_at", { ascending: false })
       .limit(1)
       .maybeSingle();
 
-    // 4. Criar Stripe Checkout Session
+    const fallbackSuccessUrl =
+      STRIPE_SUCCESS_URL ||
+      (APP_URL ? `${APP_URL}/pedido/${order.public_token}/sucesso?session_id={CHECKOUT_SESSION_ID}` : payload.successUrl);
+    const fallbackCancelUrl =
+      STRIPE_CANCEL_URL ||
+      (APP_URL ? `${APP_URL}/pedido/${order.public_token}/cancelado` : payload.cancelUrl);
+
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
-      payment_method_types: ["card"],
-      success_url: payload.successUrl,
-      cancel_url: payload.cancelUrl,
+      success_url: resolveAllowedUrl(payload.successUrl, fallbackSuccessUrl),
+      cancel_url: resolveAllowedUrl(payload.cancelUrl, fallbackCancelUrl),
       customer_email: order.customer_email ?? undefined,
       client_reference_id: order.id,
       line_items: [
@@ -103,7 +116,7 @@ Deno.serve(async (req) => {
               name: `Pedido #${order.order_number}${store?.name ? ` - ${store.name}` : ""}`,
               description: items
                 .slice(0, 5)
-                .map((i) => `${i.quantity}x ${i.product_name}`)
+                .map((item) => `${item.quantity}x ${item.product_name}`)
                 .join(", "),
             },
           },
@@ -123,11 +136,8 @@ Deno.serve(async (req) => {
       },
     });
 
-    if (!session.url) {
-      return json({ error: "Stripe não retornou URL de checkout." }, 502);
-    }
+    if (!session.url) return json({ error: "Stripe nao retornou URL de checkout." }, 502);
 
-    // 5. Persistir registro de pagamento + estado do pedido
     const paymentPayload = {
       order_id: order.id,
       store_id: order.store_id,
@@ -155,9 +165,9 @@ Deno.serve(async (req) => {
       checkoutUrl: session.url,
       sessionId: session.id,
     });
-  } catch (e) {
-    const msg = e instanceof Error ? e.message : "Erro inesperado.";
-    console.error("create-order-checkout error", msg);
-    return json({ error: msg }, 500);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Erro inesperado.";
+    console.error("create-order-checkout error", message);
+    return json({ error: message }, 500);
   }
 });

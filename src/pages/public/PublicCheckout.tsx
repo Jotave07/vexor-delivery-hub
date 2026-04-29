@@ -169,7 +169,13 @@ const PublicCheckout = () => {
 
       // 6. Payment placeholder
       await supabase.from("payments").insert({
-        order_id: order.id, store_id: store.id, method: paymentMethod, status: "pendente", amount: total,
+        order_id: order.id,
+        store_id: store.id,
+        method: paymentMethod,
+        provider: paymentMethod === "cartao_online" ? "stripe" : "manual",
+        currency: "brl",
+        status: "pendente",
+        amount: total,
       });
 
       // 7. Notification for store
@@ -181,8 +187,10 @@ const PublicCheckout = () => {
         metadata: { order_id: order.id },
       });
 
-      // 8. Bump coupon usage
-      if (coupon) await supabase.from("coupons").update({ usage_count: (coupon.usage_count ?? 0) + 1 }).eq("id", coupon.id);
+      // 8. Bump coupon usage imediatamente apenas para pedidos sem confirmacao assincrona.
+      if (coupon && paymentMethod !== "cartao_online") {
+        await supabase.from("coupons").update({ usage_count: (coupon.usage_count ?? 0) + 1 }).eq("id", coupon.id);
+      }
 
       // 9. Se cartão online, criar Stripe Checkout e redirecionar (sem limpar carrinho ainda)
       if (paymentMethod === "cartao_online") {

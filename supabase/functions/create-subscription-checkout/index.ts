@@ -13,13 +13,29 @@ type CheckoutRequest = {
 const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
 const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
 const stripeSecretKey = Deno.env.get("STRIPE_SECRET_KEY") ?? "";
+const appUrl = Deno.env.get("APP_URL") ?? "";
+const stripeSuccessUrl = Deno.env.get("STRIPE_SUCCESS_URL") ?? "";
+const stripeCancelUrl = Deno.env.get("STRIPE_CANCEL_URL") ?? "";
 
 const stripe = stripeSecretKey
   ? new Stripe(stripeSecretKey, {
-      apiVersion: "2024-06-20",
+      apiVersion: "2026-02-25.clover",
       httpClient: Stripe.createFetchHttpClient(),
     })
   : null;
+
+const resolveAllowedUrl = (candidate: string | undefined, fallback: string) => {
+  if (!candidate) return fallback;
+  if (!appUrl) return candidate;
+
+  try {
+    const appOrigin = new URL(appUrl).origin;
+    const parsed = new URL(candidate);
+    return parsed.origin === appOrigin ? parsed.toString() : fallback;
+  } catch {
+    return fallback;
+  }
+};
 
 Deno.serve(async (request) => {
   if (request.method === "OPTIONS") {
@@ -110,8 +126,14 @@ Deno.serve(async (request) => {
 
     const session = await stripe.checkout.sessions.create({
       mode: "subscription",
-      success_url: payload.successUrl,
-      cancel_url: payload.cancelUrl,
+      success_url: resolveAllowedUrl(
+        payload.successUrl,
+        stripeSuccessUrl || (appUrl ? `${appUrl}/app/assinatura?state=pending_payment` : payload.successUrl),
+      ),
+      cancel_url: resolveAllowedUrl(
+        payload.cancelUrl,
+        stripeCancelUrl || (appUrl ? `${appUrl}/app/assinatura?state=no_plan` : payload.cancelUrl),
+      ),
       customer,
       client_reference_id: store.id,
       line_items: [
