@@ -35,7 +35,7 @@ const PublicCheckout = () => {
   const [number, setNumber] = useState("");
   const [complement, setComplement] = useState("");
   const [reference, setReference] = useState("");
-  const [paymentMethod, setPaymentMethod] = useState<"pix" | "dinheiro" | "cartao_entrega">("pix");
+  const [paymentMethod, setPaymentMethod] = useState<"pix" | "dinheiro" | "cartao_entrega" | "cartao_online">("pix");
   const [changeFor, setChangeFor] = useState("");
   const [notes, setNotes] = useState("");
   const [couponCode, setCouponCode] = useState("");
@@ -95,6 +95,7 @@ const PublicCheckout = () => {
     if (paymentMethod === "pix" && !settings.accept_pix) return toast.error("Pix não aceito");
     if (paymentMethod === "dinheiro" && !settings.accept_cash) return toast.error("Dinheiro não aceito");
     if (paymentMethod === "cartao_entrega" && !settings.accept_card_on_delivery) return toast.error("Cartão na entrega não aceito");
+    if (paymentMethod === "cartao_online" && !settings.accept_card_online) return toast.error("Cartão online não aceito");
 
     setSubmitting(true);
     try {
@@ -182,6 +183,21 @@ const PublicCheckout = () => {
 
       // 8. Bump coupon usage
       if (coupon) await supabase.from("coupons").update({ usage_count: (coupon.usage_count ?? 0) + 1 }).eq("id", coupon.id);
+
+      // 9. Se cartão online, criar Stripe Checkout e redirecionar (sem limpar carrinho ainda)
+      if (paymentMethod === "cartao_online") {
+        const successUrl = `${window.location.origin}/pedido/${order.public_token}/sucesso?session_id={CHECKOUT_SESSION_ID}`;
+        const cancelUrl = `${window.location.origin}/pedido/${order.public_token}/cancelado`;
+        const { data: ck, error: ckErr } = await supabase.functions.invoke("create-order-checkout", {
+          body: { orderId: order.id, successUrl, cancelUrl },
+        });
+        if (ckErr || !ck?.checkoutUrl) {
+          throw new Error(ckErr?.message ?? ck?.error ?? "Falha ao iniciar pagamento online.");
+        }
+        clear();
+        window.location.href = ck.checkoutUrl as string;
+        return;
+      }
 
       clear();
       toast.success("Pedido enviado!");
@@ -275,6 +291,11 @@ const PublicCheckout = () => {
             {settings?.accept_card_on_delivery && (
               <label className={`flex items-center gap-2 border rounded-md p-3 cursor-pointer ${paymentMethod === "cartao_entrega" ? "border-primary bg-primary/5" : "border-border"}`}>
                 <RadioGroupItem value="cartao_entrega" /> Cartão na entrega
+              </label>
+            )}
+            {settings?.accept_card_online && (
+              <label className={`flex items-center gap-2 border rounded-md p-3 cursor-pointer ${paymentMethod === "cartao_online" ? "border-primary bg-primary/5" : "border-border"}`}>
+                <RadioGroupItem value="cartao_online" /> Cartão online (pagar agora)
               </label>
             )}
           </RadioGroup>

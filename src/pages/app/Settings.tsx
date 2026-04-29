@@ -967,6 +967,7 @@ const buildStoreSettings = (settings: StoreSettingsRow | null): StoreSettingsRow
   accept_cash: settings?.accept_cash ?? true,
   accept_pix: settings?.accept_pix ?? true,
   accept_card_on_delivery: settings?.accept_card_on_delivery ?? true,
+  accept_card_online: settings?.accept_card_online ?? true,
   pix_key: settings?.pix_key ?? null,
   pix_key_type: settings?.pix_key_type ?? null,
   business_hours: settings?.business_hours ?? DEFAULT_BUSINESS_HOURS,

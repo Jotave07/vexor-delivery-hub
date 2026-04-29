@@ -61,6 +61,32 @@ const OrderTracking = () => {
             <h2 className="font-semibold">Status do pedido</h2>
             <Badge variant={cancelled ? "destructive" : "default"}>{STATUS_LABELS[order.status] ?? order.status}</Badge>
           </div>
+          {order.payment_status && order.payment_status !== "pendente" && (
+            <div className="mb-3 text-xs">
+              Pagamento:{" "}
+              <span
+                className={
+                  order.payment_status === "pago"
+                    ? "text-green-600 font-semibold"
+                    : order.payment_status === "processando"
+                      ? "text-primary font-semibold"
+                      : "text-destructive font-semibold"
+                }
+              >
+                {order.payment_status === "pago"
+                  ? "Confirmado"
+                  : order.payment_status === "processando"
+                    ? "Processando…"
+                    : order.payment_status === "expirado"
+                      ? "Sessão expirou"
+                      : order.payment_status === "reembolsado"
+                        ? "Reembolsado"
+                        : order.payment_status === "falhou"
+                          ? "Falhou"
+                          : "Cancelado"}
+              </span>
+            </div>
+          )}
           {cancelled ? (
             <p className="text-sm text-destructive">Este pedido foi cancelado.</p>
           ) : (
