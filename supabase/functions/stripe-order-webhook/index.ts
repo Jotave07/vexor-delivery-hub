@@ -65,7 +65,12 @@ Deno.serve(async (req) => {
         typeof session.payment_intent === "string" ? session.payment_intent : session.payment_intent?.id ?? null;
 
       const paymentUpdate: Record<string, unknown> = {
-        status: paymentStatus === "pago" ? "pago" : paymentStatus === "falhou" || paymentStatus === "cancelado" || paymentStatus === "expirado" ? "falhou" : "pendente",
+        status:
+          paymentStatus === "pago"
+            ? "pago"
+            : paymentStatus === "falhou" || paymentStatus === "cancelado" || paymentStatus === "expirado"
+              ? "cancelado"
+              : "pendente",
         provider_payment_intent_id: paymentIntentId,
         last_event_at: new Date().toISOString(),
       };
@@ -99,7 +104,7 @@ Deno.serve(async (req) => {
       const update: Record<string, unknown> = {
         provider_payment_intent_id: pi.id,
         last_event_at: new Date().toISOString(),
-        status: paymentStatus === "pago" ? "pago" : "falhou",
+        status: paymentStatus === "pago" ? "pago" : "cancelado",
       };
       if (paymentStatus === "pago") update.paid_at = new Date().toISOString();
       if (pi.last_payment_error?.message) update.failure_reason = pi.last_payment_error.message;
@@ -134,7 +139,7 @@ Deno.serve(async (req) => {
         const charge = event.data.object as Stripe.Charge;
         const piId = typeof charge.payment_intent === "string" ? charge.payment_intent : charge.payment_intent?.id ?? null;
         if (piId) {
-          await supabase.from("payments").update({ status: "estornado", last_event_at: new Date().toISOString() }).eq("provider_payment_intent_id", piId);
+          await supabase.from("payments").update({ status: "cancelado", last_event_at: new Date().toISOString() }).eq("provider_payment_intent_id", piId);
           const { data: pay } = await supabase.from("payments").select("order_id").eq("provider_payment_intent_id", piId).maybeSingle();
           if (pay?.order_id) {
             await supabase.from("orders").update({ payment_status: "reembolsado" }).eq("id", pay.order_id);
