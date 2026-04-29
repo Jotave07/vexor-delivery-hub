@@ -36,7 +36,15 @@ Deno.serve(async (request) => {
     const event = await stripe.webhooks.constructEventAsync(rawBody, signature, webhookSecret);
     const supabase = createClient(supabaseUrl, serviceRoleKey);
 
-    switch (event.type) {
+    // Idempotência: mesmo event.id usado pelo webhook de pedidos.
+    const { data: isNew } = await supabase.rpc("mark_stripe_event_processed", {
+      _event_id: event.id,
+      _event_type: event.type,
+      _payload: event as unknown as Record<string, unknown>,
+    });
+    if (isNew === false) {
+      return jsonResponse({ received: true, duplicate: true });
+    }
       case "checkout.session.completed": {
         const session = event.data.object as Stripe.Checkout.Session;
         const subscriptionId = typeof session.subscription === "string" ? session.subscription : session.subscription?.id;
