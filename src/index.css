@@ -153,76 +153,81 @@
 }
 
 @layer components {
-  .brand-symbol {
+  .brand-mark {
     position: relative;
-    display: inline-grid;
-    width: 2.5rem;
-    height: 2.5rem;
-    flex: 0 0 auto;
-    place-items: center;
-    overflow: hidden;
-    background: hsl(220 18% 10%);
-    box-shadow: inset 0 0 0 1px hsl(210 20% 95% / 0.08), 0 10px 22px -18px hsl(220 30% 2% / 0.55);
-    transform-origin: 50% 50%;
-    transition: transform 220ms ease, box-shadow 220ms ease;
+    width: fit-content;
+    transform-origin: left center;
+    line-height: 0;
+    isolation: isolate;
   }
 
-  .brand-symbol::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    inset: 1px;
-    background: hsl(17 100% 58%);
-    clip-path: polygon(0 0, 54% 0, 100% 100%, 46% 100%);
+  .brand-logo-frame {
+    position: relative;
+    display: inline-flex;
+    width: clamp(9.75rem, 26vw, 13rem);
+    min-width: 0;
+    transform-origin: center;
+    transition: transform 260ms ease, filter 260ms ease;
   }
 
-  .brand-symbol::after {
+  .brand-mark--compact .brand-logo-frame,
+  .brand-logo-frame--compact {
+    width: clamp(7.5rem, 20vw, 10rem);
+  }
+
+  .brand-logo-frame::before {
     content: "";
     position: absolute;
-    inset: -18%;
+    inset: 14% 8%;
     background:
-      radial-gradient(circle, hsl(17 100% 58% / 0.26) 0%, hsl(17 100% 58% / 0.12) 34%, transparent 68%);
+      radial-gradient(circle, hsl(186 100% 50% / 0.18) 0%, transparent 56%),
+      radial-gradient(circle at 72% 44%, hsl(17 100% 58% / 0.22) 0%, transparent 52%);
+    filter: blur(18px);
     opacity: 0;
-    transform: scale(0.82);
+    pointer-events: none;
+    z-index: -1;
+  }
+
+  .brand-logo-frame::after {
+    content: "";
+    position: absolute;
+    inset: 8% -10%;
+    background: linear-gradient(108deg, transparent 0%, hsl(0 0% 100% / 0.04) 44%, hsl(0 0% 100% / 0.22) 50%, hsl(0 0% 100% / 0.04) 56%, transparent 100%);
+    opacity: 0;
+    transform: translateX(-16%) skewX(-14deg);
+    mix-blend-mode: screen;
     pointer-events: none;
   }
 
-  .brand-symbol > span {
+  .brand-logo-image {
     position: relative;
-    width: 0.84rem;
-    height: 1.34rem;
-    border-right: 3px solid white;
-    border-bottom: 3px solid white;
-    transform: skewX(-18deg) rotate(22deg);
-    opacity: 0.98;
-    transition: transform 220ms ease;
-  }
-
-  .brand-mark {
-    transform-origin: left center;
+    display: block;
+    width: 100%;
+    height: auto;
+    object-fit: contain;
+    filter: drop-shadow(0 10px 22px hsl(220 30% 2% / 0.24));
   }
 
   .brand-mark--animated {
-    animation: logo-enter-premium 0.78s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+    animation: brand-mark-enter 0.86s cubic-bezier(0.2, 0.8, 0.2, 1) both;
   }
 
-  .brand-mark--animated .brand-symbol {
-    animation: logo-symbol-settle 0.78s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  .brand-mark--animated .brand-logo-frame {
+    animation: brand-logo-settle 0.86s cubic-bezier(0.2, 0.8, 0.2, 1) both;
   }
 
-  .brand-mark--animated .brand-symbol::after {
-    animation: logo-glow-pulse 0.78s cubic-bezier(0.22, 1, 0.36, 1) both;
+  .brand-mark--animated .brand-logo-frame::before {
+    animation: brand-logo-glow 0.86s cubic-bezier(0.22, 1, 0.36, 1) both;
   }
 
-  .brand-mark:hover .brand-symbol,
-  .brand-mark:focus-visible .brand-symbol {
-    box-shadow: inset 0 0 0 1px hsl(210 20% 95% / 0.1), 0 0 0 1px hsl(17 100% 58% / 0.28), 0 12px 24px -18px hsl(17 100% 58% / 0.45);
-    transform: translateY(-1px) scale(1.02) rotate(-1.5deg);
+  .brand-mark--animated .brand-logo-frame::after {
+    animation: brand-logo-sheen 0.84s cubic-bezier(0.22, 1, 0.36, 1) 60ms both;
   }
 
-  .brand-mark:hover .brand-symbol > span,
-  .brand-mark:focus-visible .brand-symbol > span {
-    transform: skewX(-18deg) rotate(20deg);
+  .brand-mark:hover .brand-logo-frame,
+  .brand-mark:focus-visible .brand-logo-frame {
+    filter: drop-shadow(0 12px 26px hsl(220 30% 2% / 0.3));
+    transform: translateY(-1px) scale(1.02);
   }
 
   .auth-shell {
@@ -264,25 +269,14 @@
   }
 }
 
-@keyframes logo-enter {
-  from {
-    opacity: 0;
-    transform: translateY(6px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes logo-enter-premium {
+@keyframes brand-mark-enter {
   0% {
     opacity: 0;
-    transform: translateY(4px) scale(0.965);
+    transform: translateY(8px) scale(0.965);
   }
   55% {
     opacity: 1;
-    transform: translateY(0) scale(1.01);
+    transform: translateY(0) scale(1.015);
   }
   100% {
     opacity: 1;
@@ -290,42 +284,56 @@
   }
 }
 
-@keyframes logo-symbol-settle {
+@keyframes brand-logo-settle {
   0% {
-    transform: perspective(120px) rotateZ(-5deg) scale(0.94);
+    transform: perspective(720px) rotateX(7deg) rotateZ(-4.5deg) scale(0.94);
   }
   58% {
-    transform: perspective(120px) rotateZ(0.8deg) scale(1.02);
+    transform: perspective(720px) rotateX(0deg) rotateZ(1.2deg) scale(1.03);
   }
   100% {
-    transform: perspective(120px) rotateZ(0deg) scale(1);
+    transform: perspective(720px) rotateX(0deg) rotateZ(0deg) scale(1);
   }
 }
 
-@keyframes logo-glow-pulse {
+@keyframes brand-logo-glow {
   0% {
     opacity: 0;
-    transform: scale(0.82);
+    transform: scale(0.88);
   }
-  44% {
-    opacity: 0.72;
+  48% {
+    opacity: 0.95;
     transform: scale(1.04);
   }
   100% {
+    opacity: 0.28;
+    transform: scale(1.08);
+  }
+}
+
+@keyframes brand-logo-sheen {
+  0% {
     opacity: 0;
-    transform: scale(1.12);
+    transform: translateX(-18%) skewX(-14deg);
+  }
+  28% {
+    opacity: 0.55;
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(18%) skewX(-14deg);
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .brand-mark--animated,
-  .brand-mark--animated .brand-symbol,
-  .brand-mark--animated .brand-symbol::after {
+  .brand-mark--animated .brand-logo-frame,
+  .brand-mark--animated .brand-logo-frame::before,
+  .brand-mark--animated .brand-logo-frame::after {
     animation: none;
   }
 
-  .brand-symbol,
-  .brand-symbol > span {
+  .brand-logo-frame {
     transition: none;
   }
 }

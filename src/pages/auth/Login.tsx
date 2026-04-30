@@ -9,7 +9,6 @@ import { Card } from "@/components/ui/card";
 import { BrandMark } from "@/components/BrandMark";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
-import { buildAppUrl } from "@/lib/auth-redirect";
 
 const schema = z.object({
   email: z.string().trim().email("E-mail invalido").max(255),
@@ -56,31 +55,12 @@ const Login = () => {
     navigate(safeFrom, { replace: true });
   };
 
-  const onGoogle = async () => {
-    setLoading(true);
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: { redirectTo: `${buildAppUrl("/auth/confirm")}?next=${encodeURIComponent(safeFrom)}` },
-    });
-    if (error) {
-      setLoading(false);
-      toast.error("Nao foi possivel entrar com Google");
-    }
-  };
-
   return (
     <div className="auth-shell">
       <BrandMark to="/" className="mb-8" />
       <Card className="auth-card">
         <h1 className="mb-2 text-2xl font-bold">Entrar na sua conta</h1>
         <p className="mb-6 text-sm text-muted-foreground">Acesse o painel da sua loja</p>
-        <Button type="button" variant="outline" className="mb-4 w-full" onClick={onGoogle} disabled={loading}>
-          Continuar com Google
-        </Button>
-        <div className="relative my-4">
-          <div className="absolute inset-0 flex items-center"><span className="w-full border-t border-border" /></div>
-          <div className="relative flex justify-center text-xs uppercase"><span className="bg-card px-2 text-muted-foreground">ou</span></div>
-        </div>
         <form onSubmit={onSubmit} className="space-y-4">
           <div>
             <Label htmlFor="email">E-mail</Label>

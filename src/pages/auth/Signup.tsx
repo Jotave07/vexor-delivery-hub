@@ -47,32 +47,12 @@ const Signup = () => {
     navigate("/onboarding", { replace: true });
   };
 
-  const onGoogle = async () => {
-    setLoading(true);
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: { redirectTo: `${buildAppUrl("/auth/confirm")}?next=%2Fonboarding` },
-    });
-    if (error) {
-      setLoading(false);
-      toast.error("Nao foi possivel continuar com Google");
-    }
-  };
-
   return (
     <div className="auth-shell py-8">
       <BrandMark to="/" className="mb-8" />
       <Card className="auth-card">
         <h1 className="mb-2 text-2xl font-bold">Criar conta</h1>
         <p className="mb-6 text-sm text-muted-foreground">Crie sua conta primeiro. A escolha e o pagamento do plano acontecem depois que a loja for cadastrada.</p>
-
-        <Button type="button" variant="outline" className="mb-4 w-full" onClick={onGoogle} disabled={loading}>
-          Continuar com Google
-        </Button>
-        <div className="relative my-4">
-          <div className="absolute inset-0 flex items-center"><span className="w-full border-t border-border" /></div>
-          <div className="relative flex justify-center text-xs uppercase"><span className="bg-card px-2 text-muted-foreground">ou</span></div>
-        </div>
         <form onSubmit={onSubmit} className="space-y-4">
           <div>
             <Label htmlFor="full_name">Seu nome</Label>
