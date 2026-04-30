@@ -16,8 +16,8 @@ const Mark = () => (
 
 const Text = ({ compact }: { compact?: boolean }) => (
   <span className="flex flex-col leading-none">
-    <span className="text-[15px] font-semibold text-foreground">{BRAND_NAME}</span>
-    {!compact && <span className="mt-1 text-[10px] font-medium uppercase text-muted-foreground">Delivery OS</span>}
+    <span className="font-display text-[15px] font-semibold uppercase tracking-[-0.05em] text-foreground">{BRAND_NAME}</span>
+    {!compact && <span className="mt-1 text-[10px] font-semibold uppercase tracking-[0.22em] text-muted-foreground">Delivery OS</span>}
   </span>
 );
 

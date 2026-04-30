@@ -38,23 +38,23 @@ export const Pricing = () => {
     <section id="planos" className="section-band py-20 md:py-24">
       <div className="container mx-auto px-4">
         <div className="mb-12 max-w-2xl">
-          <p className="mb-3 text-sm font-semibold uppercase text-primary">Planos</p>
-          <h2 className="mb-4 text-3xl font-bold md:text-5xl">Custo previsivel para uma operacao mais independente.</h2>
-          <p className="text-lg text-muted-foreground">Sem taxa por pedido e com troca de plano conforme a loja cresce.</p>
+          <p className="mb-3 text-sm font-semibold uppercase tracking-[0.16em] text-primary">Planos</p>
+          <h2 className="mb-4 font-display text-3xl font-bold tracking-tight md:text-5xl">Custo previsivel para uma operacao mais independente.</h2>
+          <p className="text-lg leading-8 text-muted-foreground">Sem taxa por pedido e com troca de plano conforme a loja cresce.</p>
         </div>
 
         <div className="grid gap-5 md:grid-cols-3">
           {plans.map((plan) => (
-            <div key={plan.name} className={`relative flex flex-col rounded-lg border bg-card p-7 shadow-card transition-smooth ${plan.highlight ? "border-primary shadow-elegant" : "border-border hover:border-primary/40"}`}>
+            <div key={plan.name} className={`relative flex flex-col rounded-xl border bg-card p-7 transition-smooth ${plan.highlight ? "border-primary bg-card" : "border-border/90 hover:border-primary/40"}`}>
               {plan.highlight && (
-                <div className="absolute -top-3 left-5 rounded-md bg-primary px-3 py-1 text-xs font-semibold text-primary-foreground">
+                <div className="absolute -top-3 left-5 rounded-full bg-primary px-3 py-1 text-xs font-semibold uppercase tracking-[0.12em] text-primary-foreground">
                   Mais escolhido
                 </div>
               )}
-              <h3 className="text-xl font-semibold">{plan.name}</h3>
-              <p className="mb-6 mt-2 min-h-12 text-sm text-muted-foreground">{plan.desc}</p>
+              <h3 className="font-display text-xl font-semibold">{plan.name}</h3>
+              <p className="mb-6 mt-2 min-h-12 text-sm leading-7 text-muted-foreground">{plan.desc}</p>
               <div className="mb-6 flex items-baseline gap-1">
-                <span className="text-4xl font-bold">{plan.price}</span>
+                <span className="font-display text-4xl font-bold">{plan.price}</span>
                 <span className="text-sm text-muted-foreground">{plan.period}</span>
               </div>
               <ul className="mb-8 space-y-3">
@@ -75,4 +75,3 @@ export const Pricing = () => {
     </section>
   );
 };
-

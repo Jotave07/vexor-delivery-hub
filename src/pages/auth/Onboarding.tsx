@@ -27,11 +27,48 @@ const Onboarding = () => {
   const { user, profile, loading: authLoading, refreshProfile } = useAuth();
   const [form, setForm] = useState({ name: "", slug: "", description: "", whatsapp: "", city: "", state: "" });
   const [loading, setLoading] = useState(false);
+  const [checkingAccess, setCheckingAccess] = useState(true);
   const publicBaseUrl = `${window.location.host}/loja/`;
 
   useEffect(() => {
-    if (!authLoading && profile?.store_id) navigate("/app/assinatura", { replace: true });
-  }, [authLoading, profile, navigate]);
+    if (authLoading) return;
+    if (!user) {
+      setCheckingAccess(false);
+      return;
+    }
+
+    const ensureAccessTarget = async () => {
+      const [{ data: isAdmin }, { data: ownedStore, error: ownedStoreError }] = await Promise.all([
+        supabase.rpc("is_vexor_admin", { _user_id: user.id }),
+        supabase.from("stores").select("id").eq("owner_user_id", user.id).maybeSingle(),
+      ]);
+
+      if (ownedStoreError) {
+        toast.error("Nao foi possivel validar a conta.");
+        setCheckingAccess(false);
+        return;
+      }
+
+      if (ownedStore?.id) {
+        if (profile?.store_id !== ownedStore.id) {
+          await supabase.from("profiles").update({ store_id: ownedStore.id }).eq("user_id", user.id);
+          await refreshProfile();
+        }
+
+        navigate(Boolean(isAdmin) ? "/admin" : "/app/assinatura", { replace: true });
+        return;
+      }
+
+      if (isAdmin) {
+        navigate("/admin", { replace: true });
+        return;
+      }
+
+      setCheckingAccess(false);
+    };
+
+    void ensureAccessTarget();
+  }, [authLoading, navigate, profile?.store_id, refreshProfile, user]);
 
   useEffect(() => {
     if (form.name && !form.slug) setForm((f) => ({ ...f, slug: slugify(form.name) }));
@@ -111,7 +148,7 @@ const Onboarding = () => {
     navigate("/app/assinatura?state=no_plan", { replace: true });
   };
 
-  if (authLoading) {
+  if (authLoading || checkingAccess) {
     return <div className="flex min-h-screen items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
   }
 

@@ -15,19 +15,19 @@ export const Benefits = () => {
     <section id="beneficios" className="py-20 md:py-24">
       <div className="container mx-auto px-4">
         <div className="mb-12 max-w-2xl">
-          <p className="mb-3 text-sm font-semibold uppercase text-primary">Controle operacional</p>
-          <h2 className="mb-4 text-3xl font-bold md:text-5xl">O essencial do delivery em um sistema sob sua marca.</h2>
-          <p className="text-lg text-muted-foreground">Menos ruído, mais clareza para aceitar pedidos, organizar produtos e entender vendas.</p>
+          <p className="mb-3 text-sm font-semibold uppercase tracking-[0.16em] text-primary">Controle operacional</p>
+          <h2 className="mb-4 font-display text-3xl font-bold tracking-tight md:text-5xl">O essencial do delivery em um sistema sob sua marca.</h2>
+          <p className="text-lg leading-8 text-muted-foreground">Menos ruido, mais clareza para aceitar pedidos, organizar produtos e entender vendas.</p>
         </div>
 
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {benefits.map((benefit) => (
-            <div key={benefit.title} className="group rounded-lg border border-border bg-card p-6 shadow-card transition-smooth hover:-translate-y-0.5 hover:border-primary/45 hover:shadow-elegant">
-              <div className="mb-5 inline-flex h-11 w-11 items-center justify-center rounded-md bg-primary/10 text-primary transition-smooth group-hover:bg-primary group-hover:text-primary-foreground">
+            <div key={benefit.title} className="group rounded-xl border border-border/90 bg-card p-6 transition-smooth hover:border-primary/45">
+              <div className="mb-5 inline-flex h-11 w-11 items-center justify-center rounded-lg bg-secondary text-primary transition-smooth group-hover:bg-primary/10">
                 <benefit.icon className="h-5 w-5" />
               </div>
-              <h3 className="mb-2 text-lg font-semibold">{benefit.title}</h3>
-              <p className="text-sm leading-relaxed text-muted-foreground">{benefit.desc}</p>
+              <h3 className="mb-2 font-display text-lg font-semibold">{benefit.title}</h3>
+              <p className="text-sm leading-7 text-muted-foreground">{benefit.desc}</p>
             </div>
           ))}
         </div>
@@ -35,4 +35,3 @@ export const Benefits = () => {
     </section>
   );
 };
-

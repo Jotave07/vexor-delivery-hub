@@ -2,7 +2,7 @@ import { BrandMark } from "@/components/BrandMark";
 
 export const Footer = () => {
   return (
-    <footer className="border-t border-border bg-background">
+    <footer className="border-t border-border/80 bg-background/70 backdrop-blur">
       <div className="container mx-auto px-4 py-12">
         <div className="grid gap-8 md:grid-cols-4">
           <div>

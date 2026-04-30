@@ -40,6 +40,18 @@ const Login = () => {
       toast.error(error.message === "Invalid login credentials" ? "E-mail ou senha incorretos" : error.message);
       return;
     }
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    const shouldCheckAdmin = safeFrom === "/app" && user?.id;
+    if (shouldCheckAdmin) {
+      const { data: isAdmin } = await supabase.rpc("is_vexor_admin", { _user_id: user.id });
+      if (isAdmin) {
+        toast.success("Bem-vindo!");
+        navigate("/admin", { replace: true });
+        return;
+      }
+    }
     toast.success("Bem-vindo!");
     navigate(safeFrom, { replace: true });
   };
