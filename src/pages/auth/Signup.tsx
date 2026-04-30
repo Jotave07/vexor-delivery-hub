@@ -11,6 +11,7 @@ import { BrandMark } from "@/components/BrandMark";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 import { formatBRL } from "@/lib/format";
+import { buildAppUrl } from "@/lib/auth-redirect";
 
 const schema = z.object({
   full_name: z.string().trim().min(2, "Informe seu nome").max(100),
@@ -61,7 +62,7 @@ const Signup = () => {
       email: parsed.data.email,
       password: parsed.data.password,
       options: {
-        emailRedirectTo: window.location.origin + "/onboarding",
+        emailRedirectTo: buildAppUrl("/onboarding"),
         data: { full_name: parsed.data.full_name, selected_plan_id: parsed.data.plan_id },
       },
     });
@@ -83,7 +84,7 @@ const Signup = () => {
     setLoading(true);
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
-      options: { redirectTo: `${window.location.origin}/onboarding?plan=${selectedPlanId}` },
+      options: { redirectTo: `${buildAppUrl("/onboarding")}?plan=${selectedPlanId}` },
     });
     if (error) {
       setLoading(false);

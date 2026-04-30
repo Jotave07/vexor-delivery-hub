@@ -1,4 +1,4 @@
-project_id = "mpemgdvmvilqbzmbiwpg"
+project_id = "xqvksijbumgeaggcucmh"
 
 [functions.stripe-subscription-webhook]
 verify_jwt = false

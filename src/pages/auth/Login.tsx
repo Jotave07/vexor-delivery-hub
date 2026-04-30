@@ -9,6 +9,7 @@ import { Card } from "@/components/ui/card";
 import { BrandMark } from "@/components/BrandMark";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
+import { buildAppUrl } from "@/lib/auth-redirect";
 
 const schema = z.object({
   email: z.string().trim().email("E-mail invalido").max(255),
@@ -47,7 +48,7 @@ const Login = () => {
     setLoading(true);
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
-      options: { redirectTo: window.location.origin + safeFrom },
+      options: { redirectTo: buildAppUrl(safeFrom) },
     });
     if (error) {
       setLoading(false);
