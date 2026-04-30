@@ -34,7 +34,7 @@ export const createSubscriptionCheckout = async ({
   });
 
   if (error) {
-    throw new Error(error.message);
+    throw new Error(await resolveFunctionErrorMessage(error));
   }
 
   if (!data?.checkoutUrl) {
@@ -42,4 +42,39 @@ export const createSubscriptionCheckout = async ({
   }
 
   return data as CreateSubscriptionCheckoutResult;
+};
+
+const resolveFunctionErrorMessage = async (error: unknown) => {
+  if (!error || typeof error !== "object") {
+    return "Falha ao iniciar o checkout da assinatura.";
+  }
+
+  const defaultMessage =
+    "message" in error && typeof error.message === "string"
+      ? error.message
+      : "Falha ao iniciar o checkout da assinatura.";
+
+  if (!("context" in error) || !error.context || typeof error.context !== "object") {
+    return defaultMessage;
+  }
+
+  const context = error.context as { json?: () => Promise<unknown>; text?: () => Promise<string> };
+
+  try {
+    const payload = context.json ? await context.json() : null;
+    if (payload && typeof payload === "object" && "error" in payload && typeof payload.error === "string") {
+      return payload.error;
+    }
+  } catch {
+    // ignore and try plain text fallback
+  }
+
+  try {
+    const text = context.text ? await context.text() : "";
+    if (text) return text;
+  } catch {
+    // ignore and use default message
+  }
+
+  return defaultMessage;
 };

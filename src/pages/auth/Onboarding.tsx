@@ -12,6 +12,7 @@ import { BrandMark } from "@/components/BrandMark";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 import { formatBRL, slugify } from "@/lib/format";
+import { createSubscriptionCheckout } from "@/services/subscription-billing";
 import { z } from "zod";
 
 const schema = z.object({
@@ -57,7 +58,7 @@ const Onboarding = () => {
   }, []);
 
   useEffect(() => {
-    if (!authLoading && profile?.store_id) navigate("/app", { replace: true });
+    if (!authLoading && profile?.store_id) navigate("/app/assinatura", { replace: true });
   }, [authLoading, profile, navigate]);
 
   useEffect(() => {
@@ -77,6 +78,25 @@ const Onboarding = () => {
     if (!parsed.success) return toast.error(parsed.error.issues[0].message);
 
     setLoading(true);
+    const { data: ownedStore, error: ownedStoreError } = await supabase
+      .from("stores")
+      .select("id, slug")
+      .eq("owner_user_id", user.id)
+      .maybeSingle();
+
+    if (ownedStoreError) {
+      setLoading(false);
+      return toast.error("Nao foi possivel validar a conta antes de criar a loja.");
+    }
+
+    if (ownedStore) {
+      await refreshProfile();
+      setLoading(false);
+      toast.error("Esta conta ja possui uma loja criada. Regularize a assinatura para continuar.");
+      navigate("/app/assinatura?state=pending_payment", { replace: true });
+      return;
+    }
+
     const { data: existing } = await supabase.from("stores").select("id").eq("slug", parsed.data.slug).maybeSingle();
     if (existing) {
       setLoading(false);
@@ -104,7 +124,7 @@ const Onboarding = () => {
       return toast.error("Erro ao criar loja: " + (storeErr?.message ?? "desconhecido"));
     }
 
-    await Promise.all([
+    const setupResults = await Promise.allSettled([
       supabase.from("store_settings").insert({ store_id: store.id }),
       supabase.from("profiles").update({ store_id: store.id, full_name: profile?.full_name ?? null }).eq("user_id", user.id),
       supabase.from("user_roles").insert({ user_id: user.id, role: "store_owner", store_id: store.id }),
@@ -117,11 +137,37 @@ const Onboarding = () => {
       }),
     ]);
 
-    setLoading(false);
+    const setupError = setupResults.find((result) => (
+      result.status === "rejected" ||
+      Boolean(result.status === "fulfilled" && result.value?.error)
+    ));
+
+    if (setupError) {
+      setLoading(false);
+      return toast.error("A loja foi criada, mas a configuracao inicial falhou. Revise a assinatura antes de continuar.");
+    }
+
     sessionStorage.setItem("selected_plan_id", selectedPlanId);
     await refreshProfile();
-    toast.success("Loja criada! Falta concluir a assinatura para liberar o painel.");
-    navigate("/app/assinatura?state=pending_payment", { replace: true });
+
+    try {
+      const checkout = await createSubscriptionCheckout({
+        planId: selectedPlanId,
+        storeId: store.id,
+        provider: "stripe",
+        successUrl: `${window.location.origin}/app/assinatura?state=pending_payment`,
+        cancelUrl: `${window.location.origin}/app/assinatura?state=pending_payment`,
+      });
+
+      window.location.href = checkout.checkoutUrl;
+      return;
+    } catch (error) {
+      setLoading(false);
+      const message = error instanceof Error ? error.message : "Nao foi possivel iniciar o checkout da assinatura.";
+      toast.error(message);
+      navigate("/app/assinatura?state=pending_payment", { replace: true });
+      return;
+    }
   };
 
   if (authLoading) {
