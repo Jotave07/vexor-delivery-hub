@@ -25,8 +25,8 @@ export const Niches = () => {
 
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-5">
           {niches.map((niche) => (
-            <div key={niche.name} className="group flex min-h-32 flex-col items-center justify-center gap-3 rounded-xl border border-border/90 bg-card p-5 text-center transition-smooth hover:border-primary/45">
-              <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-secondary text-primary transition-smooth group-hover:bg-primary/12">
+            <div key={niche.name} className="group flex min-h-32 flex-col items-center justify-center gap-3 border border-border/90 bg-card p-5 text-center transition-smooth hover:border-primary/45">
+              <div className="flex h-11 w-11 items-center justify-center bg-secondary text-primary transition-smooth group-hover:bg-primary/12">
                 <niche.icon className="h-5 w-5" />
               </div>
               <span className="text-sm font-semibold">{niche.name}</span>

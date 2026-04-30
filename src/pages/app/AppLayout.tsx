@@ -51,7 +51,7 @@ const AppLayout = () => {
         type="button"
         aria-label={open ? "Fechar menu" : "Abrir menu"}
         onClick={() => setOpen(!open)}
-        className="fixed left-3 top-3 z-50 rounded-lg border border-border/90 bg-card p-2 shadow-card md:hidden"
+        className="fixed left-3 top-3 z-50 border border-border/90 bg-card p-2 shadow-card md:hidden"
       >
         {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
       </button>
@@ -64,7 +64,7 @@ const AppLayout = () => {
       )}>
         <div className="border-b border-sidebar-border p-5">
           <BrandMark compact className="mb-5" />
-          <div className="rounded-xl border border-sidebar-border bg-sidebar-accent/80 p-3">
+          <div className="border border-sidebar-border bg-sidebar-accent/80 p-3">
             <div className="truncate text-sm font-semibold">{store.name}</div>
             <a href={`/loja/${store.slug}`} target="_blank" rel="noreferrer" className="mt-1 inline-flex items-center gap-1 text-xs text-sidebar-primary hover:underline">
               Abrir loja <ExternalLink className="h-3 w-3" />
@@ -80,7 +80,7 @@ const AppLayout = () => {
               end={item.end}
               onClick={() => setOpen(false)}
               className={({ isActive }) => cn(
-                "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-smooth",
+                "flex items-center gap-3 px-3 py-2.5 text-sm transition-smooth",
                 isActive ? "bg-sidebar-primary text-sidebar-primary-foreground font-semibold" : "text-sidebar-foreground/74 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
               )}
             >

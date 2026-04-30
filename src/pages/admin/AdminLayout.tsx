@@ -54,7 +54,7 @@ const AdminLayout = () => {
         type="button"
         aria-label={open ? "Fechar menu" : "Abrir menu"}
         onClick={() => setOpen(!open)}
-        className="fixed left-3 top-3 z-50 rounded-lg border border-border/90 bg-card p-2 shadow-card md:hidden"
+        className="fixed left-3 top-3 z-50 border border-border/90 bg-card p-2 shadow-card md:hidden"
       >
         {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
       </button>
@@ -76,7 +76,7 @@ const AdminLayout = () => {
               end={item.end}
               onClick={() => setOpen(false)}
               className={({ isActive }) => cn(
-                "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-smooth",
+                "flex items-center gap-3 px-3 py-2.5 text-sm transition-smooth",
                 isActive ? "bg-sidebar-primary text-sidebar-primary-foreground font-semibold" : "text-sidebar-foreground/74 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
               )}
             >

@@ -6,6 +6,7 @@ type BrandMarkProps = {
   compact?: boolean;
   className?: string;
   to?: string;
+  animated?: boolean;
 };
 
 const Mark = () => (
@@ -21,7 +22,7 @@ const Text = ({ compact }: { compact?: boolean }) => (
   </span>
 );
 
-export const BrandMark = ({ compact, className, to }: BrandMarkProps) => {
+export const BrandMark = ({ compact, className, to, animated = false }: BrandMarkProps) => {
   const content = (
     <>
       <Mark />
@@ -32,13 +33,15 @@ export const BrandMark = ({ compact, className, to }: BrandMarkProps) => {
   if (to) {
     return (
       <Link to={to} className={cn("inline-flex items-center gap-2.5", className)} aria-label={PRODUCT_NAME}>
-        {content}
+        <span className={cn("brand-mark inline-flex items-center gap-2.5", animated && "brand-mark--animated")}>
+          {content}
+        </span>
       </Link>
     );
   }
 
   return (
-    <div className={cn("inline-flex items-center gap-2.5", className)} aria-label={PRODUCT_NAME}>
+    <div className={cn("brand-mark inline-flex items-center gap-2.5", animated && "brand-mark--animated", className)} aria-label={PRODUCT_NAME}>
       {content}
     </div>
   );

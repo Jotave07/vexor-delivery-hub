@@ -18,7 +18,7 @@ export const HowItWorks = () => {
 
         <div className="grid gap-3 lg:grid-cols-5">
           {steps.map((step) => (
-            <div key={step.n} className="rounded-xl border border-border/90 bg-card p-5">
+            <div key={step.n} className="border border-border/90 bg-card p-5">
               <div className="mb-5 text-sm font-semibold tracking-[0.12em] text-accent">{step.n}</div>
               <h3 className="mb-2 font-display text-base font-semibold">{step.t}</h3>
               <p className="text-sm leading-7 text-muted-foreground">{step.d}</p>

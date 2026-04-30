@@ -13,7 +13,7 @@ export const Hero = () => {
 
       <div className="container relative mx-auto flex min-h-[68svh] items-center px-4 pb-20">
         <div className="max-w-3xl animate-fade-up">
-          <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-white/10 bg-background/70 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.16em] text-white/82 backdrop-blur">
+          <div className="mb-6 inline-flex items-center gap-2 border border-white/10 bg-background/70 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.16em] text-white/82 backdrop-blur">
             <ShieldCheck className="h-3.5 w-3.5 text-accent" />
             Operacao propria para vender sem intermediarios
           </div>

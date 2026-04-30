@@ -6,7 +6,7 @@ export const Navbar = () => {
   return (
     <header className="fixed left-0 right-0 top-0 z-50 border-b border-border/80 bg-background/88 backdrop-blur-2xl">
       <nav className="container mx-auto flex h-16 items-center justify-between px-4">
-        <BrandMark to="/" />
+        <BrandMark to="/" animated />
         <div className="hidden items-center gap-7 md:flex">
           <a href="#beneficios" className="text-sm text-muted-foreground transition-smooth hover:text-foreground">Beneficios</a>
           <a href="#como-funciona" className="text-sm text-muted-foreground transition-smooth hover:text-foreground">Fluxo</a>

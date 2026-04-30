@@ -22,8 +22,8 @@ export const Benefits = () => {
 
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {benefits.map((benefit) => (
-            <div key={benefit.title} className="group rounded-xl border border-border/90 bg-card p-6 transition-smooth hover:border-primary/45">
-              <div className="mb-5 inline-flex h-11 w-11 items-center justify-center rounded-lg bg-secondary text-primary transition-smooth group-hover:bg-primary/10">
+            <div key={benefit.title} className="group border border-border/90 bg-card p-6 transition-smooth hover:border-primary/45">
+              <div className="mb-5 inline-flex h-11 w-11 items-center justify-center bg-secondary text-primary transition-smooth group-hover:bg-primary/10">
                 <benefit.icon className="h-5 w-5" />
               </div>
               <h3 className="mb-2 font-display text-lg font-semibold">{benefit.title}</h3>

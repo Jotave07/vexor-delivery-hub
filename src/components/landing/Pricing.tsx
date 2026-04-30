@@ -45,9 +45,9 @@ export const Pricing = () => {
 
         <div className="grid gap-5 md:grid-cols-3">
           {plans.map((plan) => (
-            <div key={plan.name} className={`relative flex flex-col rounded-xl border bg-card p-7 transition-smooth ${plan.highlight ? "border-primary bg-card" : "border-border/90 hover:border-primary/40"}`}>
+            <div key={plan.name} className={`relative flex flex-col border bg-card p-7 transition-smooth ${plan.highlight ? "border-primary bg-card" : "border-border/90 hover:border-primary/40"}`}>
               {plan.highlight && (
-                <div className="absolute -top-3 left-5 rounded-full bg-primary px-3 py-1 text-xs font-semibold uppercase tracking-[0.12em] text-primary-foreground">
+                <div className="absolute -top-3 left-5 bg-primary px-3 py-1 text-xs font-semibold uppercase tracking-[0.12em] text-primary-foreground">
                   Mais escolhido
                 </div>
               )}
