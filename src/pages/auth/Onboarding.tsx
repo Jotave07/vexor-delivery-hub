@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -7,12 +7,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card } from "@/components/ui/card";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { BrandMark } from "@/components/BrandMark";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
-import { formatBRL, slugify } from "@/lib/format";
-import { createSubscriptionCheckout } from "@/services/subscription-billing";
+import { slugify } from "@/lib/format";
 import { z } from "zod";
 
 const schema = z.object({
@@ -25,37 +23,11 @@ const schema = z.object({
 });
 
 const Onboarding = () => {
-  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { user, profile, loading: authLoading, refreshProfile } = useAuth();
   const [form, setForm] = useState({ name: "", slug: "", description: "", whatsapp: "", city: "", state: "" });
-  const [plans, setPlans] = useState<any[]>([]);
-  const [plansLoading, setPlansLoading] = useState(true);
-  const initialPlanId = searchParams.get("plan") || sessionStorage.getItem("selected_plan_id") || "";
-  const [selectedPlanId, setSelectedPlanId] = useState(initialPlanId);
   const [loading, setLoading] = useState(false);
   const publicBaseUrl = `${window.location.host}/loja/`;
-
-  useEffect(() => {
-    (async () => {
-      const { data, error } = await supabase
-        .from("plans")
-        .select("*")
-        .eq("is_active", true)
-        .gt("price_monthly", 0)
-        .order("sort_order");
-
-      if (error) {
-        toast.error("Nao foi possivel carregar os planos.");
-        setPlansLoading(false);
-        return;
-      }
-
-      setPlans(data ?? []);
-      setSelectedPlanId((current) => current || data?.[0]?.id || "");
-      setPlansLoading(false);
-    })();
-  }, []);
 
   useEffect(() => {
     if (!authLoading && profile?.store_id) navigate("/app/assinatura", { replace: true });
@@ -65,15 +37,9 @@ const Onboarding = () => {
     if (form.name && !form.slug) setForm((f) => ({ ...f, slug: slugify(form.name) }));
   }, [form.name, form.slug]);
 
-  const selectedPlan = useMemo(
-    () => plans.find((plan) => plan.id === selectedPlanId) ?? null,
-    [plans, selectedPlanId],
-  );
-
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) return;
-    if (!selectedPlanId) return toast.error("Escolha um plano para ativar sua loja.");
     const parsed = schema.safeParse(form);
     if (!parsed.success) return toast.error(parsed.error.issues[0].message);
 
@@ -107,7 +73,6 @@ const Onboarding = () => {
       .from("stores")
       .insert({
         owner_user_id: user.id,
-        plan_id: selectedPlanId,
         slug: parsed.data.slug,
         name: parsed.data.name,
         description: parsed.data.description || null,
@@ -128,13 +93,6 @@ const Onboarding = () => {
       supabase.from("store_settings").insert({ store_id: store.id }),
       supabase.from("profiles").update({ store_id: store.id, full_name: profile?.full_name ?? null }).eq("user_id", user.id),
       supabase.from("user_roles").insert({ user_id: user.id, role: "store_owner", store_id: store.id }),
-      supabase.from("subscriptions").insert({
-        store_id: store.id,
-        plan_id: selectedPlanId,
-        status: "pendente_pagamento",
-        provider: "stripe",
-        last_payment_status: "pending",
-      }),
     ]);
 
     const setupError = setupResults.find((result) => (
@@ -147,27 +105,10 @@ const Onboarding = () => {
       return toast.error("A loja foi criada, mas a configuracao inicial falhou. Revise a assinatura antes de continuar.");
     }
 
-    sessionStorage.setItem("selected_plan_id", selectedPlanId);
+    setLoading(false);
     await refreshProfile();
-
-    try {
-      const checkout = await createSubscriptionCheckout({
-        planId: selectedPlanId,
-        storeId: store.id,
-        provider: "stripe",
-        successUrl: `${window.location.origin}/app/assinatura?state=pending_payment`,
-        cancelUrl: `${window.location.origin}/app/assinatura?state=pending_payment`,
-      });
-
-      window.location.href = checkout.checkoutUrl;
-      return;
-    } catch (error) {
-      setLoading(false);
-      const message = error instanceof Error ? error.message : "Nao foi possivel iniciar o checkout da assinatura.";
-      toast.error(message);
-      navigate("/app/assinatura?state=pending_payment", { replace: true });
-      return;
-    }
+    toast.success("Loja criada com sucesso. Agora escolha um plano para ativar o acesso.");
+    navigate("/app/assinatura?state=no_plan", { replace: true });
   };
 
   if (authLoading) {
@@ -179,37 +120,8 @@ const Onboarding = () => {
       <BrandMark className="mb-8" />
       <Card className="w-full max-w-xl p-8 shadow-card">
         <h1 className="mb-2 text-2xl font-bold">Vamos criar sua loja</h1>
-        <p className="mb-6 text-sm text-muted-foreground">Defina o plano pago e configure os dados iniciais da sua operacao.</p>
+        <p className="mb-6 text-sm text-muted-foreground">Configure os dados iniciais da operacao. O plano e o pagamento serao escolhidos depois.</p>
         <form onSubmit={onSubmit} className="space-y-4">
-          <div className="space-y-3">
-            <Label>Plano escolhido</Label>
-            {plansLoading ? (
-              <div className="rounded-lg border border-border p-4 text-sm text-muted-foreground">
-                <Loader2 className="mr-2 inline h-4 w-4 animate-spin" />
-                Carregando planos...
-              </div>
-            ) : (
-              <RadioGroup value={selectedPlanId} onValueChange={setSelectedPlanId} className="space-y-2">
-                {plans.map((plan) => (
-                  <label key={plan.id} className={`flex cursor-pointer items-start gap-3 rounded-lg border p-4 transition-smooth ${selectedPlanId === plan.id ? "border-primary bg-primary/5" : "border-border hover:border-primary/35"}`}>
-                    <RadioGroupItem value={plan.id} className="mt-0.5" />
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-center justify-between gap-3">
-                        <span className="font-medium">{plan.name}</span>
-                        <span className="text-sm font-semibold text-primary">{formatBRL(plan.price_monthly)}/mes</span>
-                      </div>
-                      {plan.description && <p className="mt-1 text-sm text-muted-foreground">{plan.description}</p>}
-                    </div>
-                  </label>
-                ))}
-              </RadioGroup>
-            )}
-            {selectedPlan && (
-              <p className="text-xs text-muted-foreground">
-                A assinatura sera criada para o plano <span className="font-medium text-foreground">{selectedPlan.name}</span> e o acesso so sera liberado apos o pagamento.
-              </p>
-            )}
-          </div>
           <div>
             <Label htmlFor="name">Nome do estabelecimento *</Label>
             <Input id="name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="Burger Vexor" required />
@@ -239,8 +151,8 @@ const Onboarding = () => {
               <Input id="state" value={form.state} onChange={(e) => setForm({ ...form, state: e.target.value.toUpperCase().slice(0, 2) })} maxLength={2} />
             </div>
           </div>
-          <Button type="submit" variant="hero" className="w-full" disabled={loading || plansLoading || !selectedPlanId}>
-            {loading && <Loader2 className="h-4 w-4 animate-spin" />} Criar loja e seguir para assinatura
+          <Button type="submit" variant="hero" className="w-full" disabled={loading}>
+            {loading && <Loader2 className="h-4 w-4 animate-spin" />} Criar loja
           </Button>
         </form>
       </Card>

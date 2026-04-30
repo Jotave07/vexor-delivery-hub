@@ -48,7 +48,7 @@ const Login = () => {
     setLoading(true);
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
-      options: { redirectTo: buildAppUrl(safeFrom) },
+      options: { redirectTo: `${buildAppUrl("/auth/confirm")}?next=${encodeURIComponent(safeFrom)}` },
     });
     if (error) {
       setLoading(false);

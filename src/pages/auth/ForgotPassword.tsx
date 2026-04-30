@@ -19,7 +19,7 @@ const ForgotPassword = () => {
     e.preventDefault();
     setLoading(true);
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: buildAppUrl("/redefinir-senha"),
+      redirectTo: `${buildAppUrl("/auth/confirm")}?next=%2Fredefinir-senha`,
     });
     setLoading(false);
     if (error) return toast.error(error.message);

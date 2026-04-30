@@ -11,6 +11,7 @@ const AuthConfirm = () => {
   const [searchParams] = useSearchParams();
   const [message, setMessage] = useState("Validando link...");
 
+  const code = searchParams.get("code");
   const tokenHash = searchParams.get("token_hash");
   const type = searchParams.get("type");
   const next = useMemo(() => {
@@ -21,6 +22,20 @@ const AuthConfirm = () => {
 
   useEffect(() => {
     const confirm = async () => {
+      if (code) {
+        const { error } = await supabase.auth.exchangeCodeForSession(code);
+
+        if (error) {
+          setMessage("Nao foi possivel concluir o login.");
+          toast.error(error.message);
+          return;
+        }
+
+        toast.success("Acesso confirmado com sucesso.");
+        navigate(next ?? "/app", { replace: true });
+        return;
+      }
+
       if (!tokenHash || !type) {
         setMessage("Link incompleto ou expirado.");
         toast.error("Este link nao e valido.");
@@ -50,7 +65,7 @@ const AuthConfirm = () => {
     };
 
     void confirm();
-  }, [navigate, next, tokenHash, type]);
+  }, [code, navigate, next, tokenHash, type]);
 
   return (
     <div className="auth-shell">
