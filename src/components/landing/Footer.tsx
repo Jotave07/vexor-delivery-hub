@@ -36,7 +36,7 @@ export const Footer = () => {
           </div>
         </div>
         <div className="mt-12 border-t border-border pt-6 text-xs text-muted-foreground">
-          &copy; {new Date().getFullYear()} Vexor. Todos os direitos reservados.
+          &copy; {new Date().getFullYear()} VexorTech. Todos os direitos reservados.
         </div>
       </div>
     </footer>

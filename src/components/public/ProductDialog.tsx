@@ -23,62 +23,89 @@ export const ProductDialog = ({ product, onClose }: { product: any; onClose: () 
 
   useEffect(() => {
     (async () => {
-      const { data: g } = await supabase.from("product_options").select("*").eq("product_id", product.id).order("sort_order");
-      const gs = (g ?? []) as OptGroup[];
-      setGroups(gs);
-      if (gs.length) {
-        const { data: its } = await supabase.from("product_option_items").select("*").in("option_id", gs.map((x) => x.id)).eq("is_active", true).order("sort_order");
-        setItems((its ?? []) as OptItem[]);
+      const { data: groupData } = await supabase
+        .from("product_options")
+        .select("*")
+        .eq("product_id", product.id)
+        .order("sort_order");
+
+      const loadedGroups = (groupData ?? []) as OptGroup[];
+      setGroups(loadedGroups);
+
+      if (loadedGroups.length) {
+        const { data: itemData } = await supabase
+          .from("product_option_items")
+          .select("*")
+          .in("option_id", loadedGroups.map((group) => group.id))
+          .eq("is_active", true)
+          .order("sort_order");
+        setItems((itemData ?? []) as OptItem[]);
       }
+
       setLoading(false);
     })();
   }, [product.id]);
 
   const toggleItem = (group: OptGroup, itemId: string) => {
-    setSelected((prev) => {
-      const cur = prev[group.id] ?? [];
-      if (group.max_choices === 1) return { ...prev, [group.id]: cur[0] === itemId ? [] : [itemId] };
-      const has = cur.includes(itemId);
-      if (has) return { ...prev, [group.id]: cur.filter((x) => x !== itemId) };
-      if (cur.length >= group.max_choices) {
-        toast.error(`Máximo ${group.max_choices} em ${group.name}`);
-        return prev;
+    setSelected((previous) => {
+      const current = previous[group.id] ?? [];
+      if (group.max_choices === 1) {
+        return { ...previous, [group.id]: current[0] === itemId ? [] : [itemId] };
       }
-      return { ...prev, [group.id]: [...cur, itemId] };
+
+      const hasItem = current.includes(itemId);
+      if (hasItem) {
+        return { ...previous, [group.id]: current.filter((value) => value !== itemId) };
+      }
+
+      if (current.length >= group.max_choices) {
+        toast.error(`Maximo ${group.max_choices} em ${group.name}`);
+        return previous;
+      }
+
+      return { ...previous, [group.id]: [...current, itemId] };
     });
   };
 
   const unitPrice = Number(product.promo_price ?? product.price);
-  const optionsExtra = Object.values(selected).flat().reduce((s, id) => {
-    const it = items.find((i) => i.id === id);
-    return s + Number(it?.extra_price ?? 0);
+  const optionsExtra = Object.values(selected).flat().reduce((sum, id) => {
+    const item = items.find((candidate) => candidate.id === id);
+    return sum + Number(item?.extra_price ?? 0);
   }, 0);
   const total = (unitPrice + optionsExtra) * qty;
 
   const handleAdd = () => {
-    for (const g of groups) {
-      const sel = selected[g.id] ?? [];
-      if (g.is_required && sel.length < Math.max(1, g.min_choices)) {
-        return toast.error(`Selecione em "${g.name}"`);
+    for (const group of groups) {
+      const selection = selected[group.id] ?? [];
+      if (group.is_required && selection.length < Math.max(1, group.min_choices)) {
+        return toast.error(`Selecione em "${group.name}"`);
       }
-      if (sel.length < g.min_choices) {
-        return toast.error(`Mínimo ${g.min_choices} em "${g.name}"`);
-      }
-    }
-    const opts: CartOption[] = [];
-    for (const g of groups) {
-      for (const itemId of selected[g.id] ?? []) {
-        const it = items.find((i) => i.id === itemId);
-        if (!it) continue;
-        opts.push({ option_id: g.id, option_name: g.name, item_id: it.id, item_name: it.name, extra_price: Number(it.extra_price) });
+      if (selection.length < group.min_choices) {
+        return toast.error(`Minimo ${group.min_choices} em "${group.name}"`);
       }
     }
+
+    const options: CartOption[] = [];
+    for (const group of groups) {
+      for (const itemId of selected[group.id] ?? []) {
+        const item = items.find((candidate) => candidate.id === itemId);
+        if (!item) continue;
+        options.push({
+          option_id: group.id,
+          option_name: group.name,
+          item_id: item.id,
+          item_name: item.name,
+          extra_price: Number(item.extra_price),
+        });
+      }
+    }
+
     addItem({
       product_id: product.id,
       product_name: product.name,
       unit_price: unitPrice,
       quantity: qty,
-      options: opts,
+      options,
       notes: notes.trim() || undefined,
     });
     toast.success("Adicionado ao carrinho");
@@ -86,52 +113,64 @@ export const ProductDialog = ({ product, onClose }: { product: any; onClose: () 
   };
 
   return (
-    <Dialog open onOpenChange={(o) => !o && onClose()}>
-      <DialogContent className="max-w-lg max-h-[92vh] overflow-y-auto p-0">
-        {product.image_url && (
-          <img src={product.image_url} alt={product.name} className="w-full h-48 object-cover" />
-        )}
-        <div className="p-5 space-y-4">
+    <Dialog open onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className="max-h-[92vh] max-w-lg overflow-y-auto p-0">
+        {product.image_url && <img src={product.image_url} alt={product.name} className="h-48 w-full object-cover" />}
+        <div className="space-y-4 p-5">
           <DialogHeader>
-            <DialogTitle>{product.name}</DialogTitle>
+            <DialogTitle className="pr-8 text-xl text-white">{product.name}</DialogTitle>
           </DialogHeader>
           {product.description && <p className="text-sm text-muted-foreground">{product.description}</p>}
-          <div className="text-lg font-bold text-primary">
-            {product.promo_price ? <>{formatBRL(product.promo_price)} <span className="text-sm line-through text-muted-foreground font-normal">{formatBRL(product.price)}</span></> : formatBRL(product.price)}
+          <div className="border border-border bg-background/65 p-3 text-lg font-bold text-white">
+            {product.promo_price ? (
+              <>
+                {formatBRL(product.promo_price)}{" "}
+                <span className="text-sm font-normal text-muted-foreground line-through">{formatBRL(product.price)}</span>
+              </>
+            ) : (
+              formatBRL(product.price)
+            )}
           </div>
 
           {loading ? (
-            <div className="py-6 text-center"><Loader2 className="h-5 w-5 animate-spin inline text-primary" /></div>
+            <div className="py-6 text-center">
+              <Loader2 className="inline h-5 w-5 animate-spin text-primary" />
+            </div>
           ) : (
-            groups.map((g) => {
-              const its = items.filter((i) => i.option_id === g.id);
-              if (!its.length) return null;
-              const sel = selected[g.id] ?? [];
+            groups.map((group) => {
+              const groupItems = items.filter((item) => item.option_id === group.id);
+              if (!groupItems.length) return null;
+              const selection = selected[group.id] ?? [];
+
               return (
-                <div key={g.id} className="space-y-2">
+                <div key={group.id} className="space-y-2">
                   <div className="flex items-baseline justify-between">
-                    <h4 className="font-medium text-sm">{g.name} {g.is_required && <span className="text-destructive">*</span>}</h4>
+                    <h4 className="text-sm font-medium">
+                      {group.name} {group.is_required && <span className="text-destructive">*</span>}
+                    </h4>
                     <span className="text-xs text-muted-foreground">
-                      {g.max_choices === 1 ? "Escolha 1" : `Até ${g.max_choices}`}
+                      {group.max_choices === 1 ? "Escolha 1" : `Ate ${group.max_choices}`}
                     </span>
                   </div>
                   <div className="space-y-1">
-                    {its.map((it) => {
-                      const checked = sel.includes(it.id);
+                    {groupItems.map((item) => {
+                      const checked = selection.includes(item.id);
                       return (
                         <button
                           type="button"
-                          key={it.id}
-                          onClick={() => toggleItem(g, it.id)}
+                          key={item.id}
+                          onClick={() => toggleItem(group, item.id)}
                           className={cn(
-                            "w-full flex items-center justify-between rounded-md border px-3 py-2 text-left text-sm transition-colors",
-                            checked ? "border-primary bg-primary/5" : "border-border hover:bg-secondary"
+                            "flex w-full items-center justify-between border px-3 py-2 text-left text-sm transition-colors",
+                            checked ? "border-primary bg-primary/10 text-white" : "border-border hover:bg-secondary",
                           )}
                         >
-                          <span>{it.name}</span>
+                          <span>{item.name}</span>
                           <div className="flex items-center gap-2">
-                            {Number(it.extra_price) > 0 && <span className="text-xs text-muted-foreground">+ {formatBRL(it.extra_price)}</span>}
-                            <div className={cn("h-4 w-4 rounded-full border-2", checked ? "border-primary bg-primary" : "border-muted-foreground")} />
+                            {Number(item.extra_price) > 0 && (
+                              <span className="text-xs text-muted-foreground">+ {formatBRL(item.extra_price)}</span>
+                            )}
+                            <div className={cn("h-4 w-4 border-2", checked ? "border-primary bg-primary" : "border-muted-foreground")} />
                           </div>
                         </button>
                       );
@@ -143,15 +182,19 @@ export const ProductDialog = ({ product, onClose }: { product: any; onClose: () 
           )}
 
           <div>
-            <h4 className="font-medium text-sm mb-2">Observações</h4>
-            <Textarea value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Ex: sem cebola" rows={2} maxLength={200} />
+            <h4 className="mb-2 text-sm font-medium">Observacoes</h4>
+            <Textarea value={notes} onChange={(event) => setNotes(event.target.value)} placeholder="Ex: sem cebola" rows={2} maxLength={200} />
           </div>
 
-          <div className="sticky bottom-0 -mx-5 -mb-5 px-5 py-4 bg-card border-t border-border flex items-center gap-3">
-            <div className="flex items-center gap-2 border border-border rounded-md">
-              <Button size="icon" variant="ghost" onClick={() => setQty(Math.max(1, qty - 1))} className="h-9 w-9"><Minus className="h-4 w-4" /></Button>
+          <div className="sticky bottom-0 -mx-5 -mb-5 flex items-center gap-3 border-t border-border bg-card px-5 py-4">
+            <div className="flex items-center gap-2 border border-border">
+              <Button size="icon" variant="ghost" onClick={() => setQty(Math.max(1, qty - 1))} className="h-9 w-9">
+                <Minus className="h-4 w-4" />
+              </Button>
               <span className="w-6 text-center font-medium">{qty}</span>
-              <Button size="icon" variant="ghost" onClick={() => setQty(qty + 1)} className="h-9 w-9"><Plus className="h-4 w-4" /></Button>
+              <Button size="icon" variant="ghost" onClick={() => setQty(qty + 1)} className="h-9 w-9">
+                <Plus className="h-4 w-4" />
+              </Button>
             </div>
             <Button variant="hero" className="flex-1" onClick={handleAdd} disabled={loading}>
               Adicionar • {formatBRL(total)}

@@ -4,9 +4,9 @@ import { BrandMark } from "@/components/BrandMark";
 
 export const Navbar = () => {
   return (
-    <header className="fixed left-0 right-0 top-0 z-50 border-b border-border/70 bg-background/86 backdrop-blur-xl">
+    <header className="fixed left-0 right-0 top-0 z-50 border-b border-border bg-background/92 backdrop-blur-xl">
       <nav className="container mx-auto flex h-16 items-center justify-between px-4">
-        <BrandMark to="/" />
+        <BrandMark to="/" animated className="max-w-[10rem]" />
         <div className="hidden items-center gap-7 md:flex">
           <a href="#beneficios" className="text-sm text-muted-foreground transition-smooth hover:text-foreground">Beneficios</a>
           <a href="#como-funciona" className="text-sm text-muted-foreground transition-smooth hover:text-foreground">Fluxo</a>

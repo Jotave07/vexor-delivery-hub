@@ -45,9 +45,9 @@ export const Pricing = () => {
 
         <div className="grid gap-5 md:grid-cols-3">
           {plans.map((plan) => (
-            <div key={plan.name} className={`relative flex flex-col rounded-lg border bg-card p-7 shadow-card transition-smooth ${plan.highlight ? "border-primary shadow-elegant" : "border-border hover:border-primary/40"}`}>
+            <div key={plan.name} className={`vexor-panel relative flex flex-col border bg-card p-7 shadow-card transition-smooth ${plan.highlight ? "border-primary shadow-elegant" : "border-border hover:border-primary/40"}`}>
               {plan.highlight && (
-                <div className="absolute -top-3 left-5 rounded-md bg-primary px-3 py-1 text-xs font-semibold text-primary-foreground">
+                <div className="absolute -top-3 left-5 border border-primary bg-primary px-3 py-1 text-xs font-semibold uppercase tracking-[0.12em] text-primary-foreground">
                   Mais escolhido
                 </div>
               )}
@@ -75,4 +75,3 @@ export const Pricing = () => {
     </section>
   );
 };
-
