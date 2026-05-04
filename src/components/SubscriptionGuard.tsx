@@ -1,9 +1,10 @@
-import { Navigate, Outlet, useLocation } from "react-router-dom";
+import { Navigate, Outlet, useLocation, useOutletContext } from "react-router-dom";
 import { Loader2 } from "lucide-react";
 import { useSubscriptionStatus } from "@/hooks/use-subscription-status";
 
 export const SubscriptionGuard = () => {
   const location = useLocation();
+  const ctx = useOutletContext();
   const { loading, accessState } = useSubscriptionStatus();
 
   if (loading) {
@@ -19,5 +20,5 @@ export const SubscriptionGuard = () => {
     return <Navigate to={`/app/assinatura?state=${accessState}&redirect=${redirect}`} replace />;
   }
 
-  return <Outlet />;
+  return <Outlet context={ctx} />;
 };
