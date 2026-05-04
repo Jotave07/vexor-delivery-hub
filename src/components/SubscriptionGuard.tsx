@@ -20,5 +20,5 @@ export const SubscriptionGuard = () => {
     return <Navigate to={`/app/assinatura?state=${accessState}&redirect=${redirect}`} replace />;
   }
 
-  return <Outlet />;
+  return <Outlet context={ctx} />;
 };
