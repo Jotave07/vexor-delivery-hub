@@ -158,21 +158,21 @@
   .brand-symbol {
     position: relative;
     display: inline-grid;
-    width: 1.75rem;
-    height: 1.75rem;
+    width: 2.25rem;
+    height: 2.25rem;
     flex: 0 0 auto;
     place-items: center;
-    background: transparent;
-    box-shadow: none;
-    border-radius: 0;
-    overflow: visible;
+    background: hsl(210 26% 12%);
+    box-shadow: 0 10px 24px -16px hsl(210 26% 12% / 0.55);
+    border-radius: 0.5rem;
+    overflow: hidden;
   }
 
   .brand-symbol::before {
     content: "";
     position: absolute;
     inset: 0;
-    background: linear-gradient(135deg, hsl(171 48% 46%), hsl(31 82% 58%));
+    background: linear-gradient(135deg, hsl(171 48% 46% / 0.95), hsl(31 82% 58% / 0.9));
     clip-path: polygon(0 0, 58% 0, 100% 100%, 42% 100%);
   }
 
@@ -180,8 +180,8 @@
     position: relative;
     width: 0.7rem;
     height: 1.05rem;
-    border-right: 3px solid hsl(var(--background));
-    border-bottom: 3px solid hsl(var(--background));
+    border-right: 3px solid white;
+    border-bottom: 3px solid white;
     transform: skewX(-18deg) rotate(22deg);
     opacity: 0.98;
   }
