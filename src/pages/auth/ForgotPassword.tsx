@@ -8,7 +8,6 @@ import { Card } from "@/components/ui/card";
 import { BrandMark } from "@/components/BrandMark";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
-import { buildAppUrl } from "@/lib/auth-redirect";
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState("");
@@ -19,7 +18,7 @@ const ForgotPassword = () => {
     e.preventDefault();
     setLoading(true);
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${buildAppUrl("/auth/confirm")}?next=%2Fredefinir-senha`,
+      redirectTo: window.location.origin + "/redefinir-senha",
     });
     setLoading(false);
     if (error) return toast.error(error.message);

@@ -13,7 +13,6 @@ import Login from "./pages/auth/Login";
 import Signup from "./pages/auth/Signup";
 import ForgotPassword from "./pages/auth/ForgotPassword";
 import ResetPassword from "./pages/auth/ResetPassword";
-import AuthConfirm from "./pages/auth/AuthConfirm";
 import Onboarding from "./pages/auth/Onboarding";
 import AppLayout from "./pages/app/AppLayout";
 import Dashboard from "./pages/app/Dashboard";
@@ -53,7 +52,6 @@ const App = () => (
               <Route path="/cadastrar" element={<Signup />} />
               <Route path="/recuperar-senha" element={<ForgotPassword />} />
               <Route path="/redefinir-senha" element={<ResetPassword />} />
-              <Route path="/auth/confirm" element={<AuthConfirm />} />
               <Route path="/onboarding" element={<ProtectedRoute><Onboarding /></ProtectedRoute>} />
 
               <Route path="/loja/:slug" element={<PublicStore />} />

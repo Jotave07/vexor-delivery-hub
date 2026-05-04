@@ -49,10 +49,10 @@ const OrderTracking = () => {
 
   return (
     <div className="min-h-screen bg-background pb-10">
-      <header className="border-b border-border bg-card p-6 text-center text-foreground">
+      <header className="bg-gradient-primary text-primary-foreground p-6 text-center">
         {order.store_logo_url && <img src={order.store_logo_url} alt="" className="w-12 h-12 mx-auto rounded-full mb-2 object-cover bg-white" />}
         <h1 className="font-bold text-lg">{order.store_name}</h1>
-        <div className="text-sm text-muted-foreground">Pedido #{order.order_number}</div>
+        <div className="text-sm opacity-90">Pedido #{order.order_number}</div>
       </header>
 
       <div className="container max-w-xl mx-auto p-4 space-y-4 -mt-4">

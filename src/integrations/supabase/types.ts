@@ -1151,7 +1151,6 @@ export type Database = {
       }
       subscriptions: {
         Row: {
-          cancel_at_period_end: boolean
           created_at: string
           current_period_end: string | null
           current_period_start: string
@@ -1162,14 +1161,12 @@ export type Database = {
           provider: string
           provider_checkout_id: string | null
           provider_customer_id: string | null
-          provider_subscription_id: string | null
           status: Database["public"]["Enums"]["subscription_status"]
           store_id: string
           trial_ends_at: string | null
           updated_at: string
         }
         Insert: {
-          cancel_at_period_end?: boolean
           created_at?: string
           current_period_end?: string | null
           current_period_start?: string
@@ -1180,14 +1177,12 @@ export type Database = {
           provider?: string
           provider_checkout_id?: string | null
           provider_customer_id?: string | null
-          provider_subscription_id?: string | null
           status?: Database["public"]["Enums"]["subscription_status"]
           store_id: string
           trial_ends_at?: string | null
           updated_at?: string
         }
         Update: {
-          cancel_at_period_end?: boolean
           created_at?: string
           current_period_end?: string | null
           current_period_start?: string
@@ -1198,7 +1193,6 @@ export type Database = {
           provider?: string
           provider_checkout_id?: string | null
           provider_customer_id?: string | null
-          provider_subscription_id?: string | null
           status?: Database["public"]["Enums"]["subscription_status"]
           store_id?: string
           trial_ends_at?: string | null
