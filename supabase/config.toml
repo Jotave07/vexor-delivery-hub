@@ -1,12 +1,9 @@
-project_id = "xqvksijbumgeaggcucmh"
+project_id = "mpemgdvmvilqbzmbiwpg"
 
 [functions.stripe-subscription-webhook]
 verify_jwt = false
 
 [functions.stripe-order-webhook]
-verify_jwt = false
-
-[functions.stripe-webhook]
 verify_jwt = false
 
 [functions.create-order-checkout]

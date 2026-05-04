@@ -190,7 +190,7 @@ const Subscription = () => {
         )}
       </div>
 
-      <Card className="border-primary/20 bg-card">
+      <Card className="border-primary/15 bg-gradient-to-br from-card to-secondary/35">
         <CardHeader className="space-y-4">
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div className="space-y-1">

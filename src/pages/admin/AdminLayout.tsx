@@ -54,14 +54,14 @@ const AdminLayout = () => {
         type="button"
         aria-label={open ? "Fechar menu" : "Abrir menu"}
         onClick={() => setOpen(!open)}
-        className="fixed left-3 top-3 z-50 border border-border/90 bg-card p-2 shadow-card md:hidden"
+        className="fixed left-3 top-3 z-50 rounded-md border border-border bg-card p-2 shadow-card md:hidden"
       >
         {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
       </button>
       {open && <button aria-label="Fechar menu" className="fixed inset-0 z-30 bg-foreground/35 md:hidden" onClick={() => setOpen(false)} />}
 
       <aside className={cn(
-        "dark fixed inset-y-0 left-0 top-0 z-40 flex h-screen w-64 flex-col border-r border-sidebar-border bg-sidebar text-sidebar-foreground shadow-card transition-transform md:sticky md:translate-x-0",
+        "dark fixed inset-y-0 left-0 top-0 z-40 flex h-screen w-64 flex-col border-r border-sidebar-border bg-sidebar text-sidebar-foreground transition-transform md:sticky md:translate-x-0",
         open ? "translate-x-0" : "-translate-x-full"
       )}>
         <div className="border-b border-sidebar-border p-5">
@@ -76,7 +76,7 @@ const AdminLayout = () => {
               end={item.end}
               onClick={() => setOpen(false)}
               className={({ isActive }) => cn(
-                "flex items-center gap-3 px-3 py-2.5 text-sm transition-smooth",
+                "flex items-center gap-3 rounded-md px-3 py-2.5 text-sm transition-smooth",
                 isActive ? "bg-sidebar-primary text-sidebar-primary-foreground font-semibold" : "text-sidebar-foreground/74 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
               )}
             >

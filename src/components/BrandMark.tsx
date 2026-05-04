@@ -1,46 +1,46 @@
 import { Link } from "react-router-dom";
-import { PRODUCT_NAME } from "@/lib/brand";
+import { BRAND_NAME, PRODUCT_NAME } from "@/lib/brand";
 import { cn } from "@/lib/utils";
-import logoOfficial from "@/assets/vexortech-logo-official.png";
 
 type BrandMarkProps = {
   compact?: boolean;
   className?: string;
   to?: string;
-  animated?: boolean;
 };
 
-const Logo = ({ compact }: { compact?: boolean }) => (
-  <span className={cn("brand-logo-frame", compact && "brand-logo-frame--compact")} aria-hidden="true">
-    <img
-      src={logoOfficial}
-      alt=""
-      className="brand-logo-image"
-      decoding="async"
-      fetchPriority="high"
-    />
+const Mark = () => (
+  <span className="brand-symbol" aria-hidden="true">
+    <span />
   </span>
 );
 
-export const BrandMark = ({ compact, className, to, animated = false }: BrandMarkProps) => {
-  const classes = cn(
-    "brand-mark inline-flex items-center",
-    compact && "brand-mark--compact",
-    animated && "brand-mark--animated",
-    className,
+const Text = ({ compact }: { compact?: boolean }) => (
+  <span className="flex flex-col leading-none">
+    <span className="text-[15px] font-semibold text-foreground">{BRAND_NAME}</span>
+    {!compact && <span className="mt-1 text-[10px] font-medium uppercase text-muted-foreground">Delivery OS</span>}
+  </span>
+);
+
+export const BrandMark = ({ compact, className, to }: BrandMarkProps) => {
+  const content = (
+    <>
+      <Mark />
+      <Text compact={compact} />
+    </>
   );
 
   if (to) {
     return (
-      <Link to={to} className={classes} aria-label={PRODUCT_NAME}>
-        <Logo compact={compact} />
+      <Link to={to} className={cn("inline-flex items-center gap-2.5", className)} aria-label={PRODUCT_NAME}>
+        {content}
       </Link>
     );
   }
 
   return (
-    <div className={classes} aria-label={PRODUCT_NAME}>
-      <Logo compact={compact} />
+    <div className={cn("inline-flex items-center gap-2.5", className)} aria-label={PRODUCT_NAME}>
+      {content}
     </div>
   );
 };
+
