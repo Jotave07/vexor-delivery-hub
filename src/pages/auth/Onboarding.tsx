@@ -41,7 +41,6 @@ const Onboarding = () => {
         .from("plans")
         .select("*")
         .eq("is_active", true)
-        .gt("price_monthly", 0)
         .order("sort_order");
 
       if (error) {
@@ -141,6 +140,10 @@ const Onboarding = () => {
               <div className="rounded-lg border border-border p-4 text-sm text-muted-foreground">
                 <Loader2 className="mr-2 inline h-4 w-4 animate-spin" />
                 Carregando planos...
+              </div>
+            ) : plans.length === 0 ? (
+              <div className="rounded-lg border border-destructive/20 bg-destructive/5 p-4 text-sm text-destructive">
+                Nenhum plano ativo disponivel no momento.
               </div>
             ) : (
               <RadioGroup value={selectedPlanId} onValueChange={setSelectedPlanId} className="space-y-2">

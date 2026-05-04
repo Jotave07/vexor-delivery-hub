@@ -33,7 +33,6 @@ const Signup = () => {
         .from("plans")
         .select("*")
         .eq("is_active", true)
-        .gt("price_monthly", 0)
         .order("sort_order");
 
       if (error) {
@@ -74,23 +73,6 @@ const Signup = () => {
     navigate(`/onboarding?plan=${parsed.data.plan_id}`, { replace: true });
   };
 
-  const onGoogle = async () => {
-    if (!selectedPlanId) {
-      toast.error("Escolha um plano para ativar sua loja.");
-      return;
-    }
-    sessionStorage.setItem("selected_plan_id", selectedPlanId);
-    setLoading(true);
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: { redirectTo: `${window.location.origin}/onboarding?plan=${selectedPlanId}` },
-    });
-    if (error) {
-      setLoading(false);
-      toast.error("Nao foi possivel continuar com Google");
-    }
-  };
-
   return (
     <div className="auth-shell py-8">
       <BrandMark to="/" className="mb-8" />
@@ -127,13 +109,6 @@ const Signup = () => {
           )}
         </div>
 
-        <Button type="button" variant="outline" className="mb-4 w-full" onClick={onGoogle} disabled={loading || plansLoading || plans.length === 0}>
-          Continuar com Google
-        </Button>
-        <div className="relative my-4">
-          <div className="absolute inset-0 flex items-center"><span className="w-full border-t border-border" /></div>
-          <div className="relative flex justify-center text-xs uppercase"><span className="bg-card px-2 text-muted-foreground">ou</span></div>
-        </div>
         <form onSubmit={onSubmit} className="space-y-4">
           <div>
             <Label htmlFor="full_name">Seu nome</Label>
