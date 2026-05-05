@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams, Link } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/lib/supabase-client";
 import { useCart } from "@/contexts/CartContext";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
