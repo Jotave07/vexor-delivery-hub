@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/lib/supabase-client";
 import { Card } from "@/components/ui/card";
 import { Loader2, Building2, ShoppingBag, DollarSign, CreditCard } from "lucide-react";
 import { formatBRL } from "@/lib/format";

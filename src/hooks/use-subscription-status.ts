@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/lib/supabase-client";
 import type { Tables } from "@/integrations/supabase/types";
 import { getSubscriptionAccessMessage, getSubscriptionAccessState, type SubscriptionAccessState } from "@/lib/subscription";
 
