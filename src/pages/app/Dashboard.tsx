@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useOutletContext } from "react-router-dom";
-import { supabase } from "@/lib/supabase-client";
+import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { formatBRL } from "@/lib/format";
 import { ShoppingBag, DollarSign, TrendingUp, Clock, Loader2 } from "lucide-react";
